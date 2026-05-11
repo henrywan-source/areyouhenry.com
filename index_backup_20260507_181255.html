@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Henry Wang</title>
+<style>
+@import url('https://fonts.cdnfonts.com/css/akira-expanded');
+
+/* ==========================================================================
+   RESET
+========================================================================== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ==========================================================================
+   TOKENS
+========================================================================== */
+:root{
+  --nav: 52px;
+  --pad: clamp(20px, 4.5vw, 72px);
+  --gap: clamp(14px, 2.2vw, 32px);
+  --t:   180ms ease;
+}
+
+/* ==========================================================================
+   BASE
+========================================================================== */
+html{scroll-behavior:smooth}
+body{
+  font-family:'Akira Expanded',Helvetica,Arial,sans-serif;
+  background:#fff;
+  color:#000;
+  line-height:1.5;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+img{display:block;max-width:100%}
+:focus-visible{outline:1px solid #000;outline-offset:3px}
+
+/* ==========================================================================
+   NAV
+   EDIT: Artist name → the first <button> text inside <nav>
+========================================================================== */
+#nav{
+  position:fixed;
+  inset:0 0 auto 0;
+  height:var(--nav);
+  background:#fff;
+  border-bottom:1px solid #000;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 var(--pad);
+  z-index:500;
+}
+
+.n-logo{
+  background:none;border:none;
+  font-size:12px;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;color:#000;
+}
+
+.n-links{display:flex;gap:30px;list-style:none}
+.n-links button{
+  background:none;border:none;
+  border-bottom:1px solid transparent;
+  font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:#000;
+  padding:2px 0;
+  transition:opacity var(--t),border-color var(--t);
+}
+.n-links button:hover{opacity:.42}
+.n-links button.on{border-bottom-color:#000}
+
+/* Hide entire nav bar on home page */
+body.is-home #nav{display:none !important}
+
+/* Inline home nav */
+.hm-nav{
+  display:flex;flex-direction:column;align-items:center;gap:40px;
+  list-style:none;
+  margin-top:32px;margin-bottom:-184px;
+  position:relative;z-index:10;
+}
+.hm-nav button{
+  background:none;border:none;
+  border-bottom:1px solid transparent;
+  font-size:10px;letter-spacing:.33em;text-transform:uppercase;color:#000;
+  padding:2px 0;
+  cursor:pointer;
+  transition:opacity var(--t),border-color var(--t);
+}
+.hm-nav button:hover{opacity:.42}
+.hm-nav button.on{border-bottom-color:#000}
+
+/* Burger — shown only on mobile */
+.burger{
+  display:none;flex-direction:column;justify-content:center;
+  gap:5px;width:28px;height:28px;background:none;border:none;
+}
+.burger i{display:block;height:1px;background:#000;transition:transform var(--t),opacity var(--t)}
+.burger.open i:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.burger.open i:nth-child(2){opacity:0}
+.burger.open i:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+
+/* Mobile dropdown */
+#mob{
+  position:fixed;inset:var(--nav) 0 auto 0;
+  background:#fff;border-bottom:1px solid #000;
+  max-height:0;overflow:hidden;
+  transition:max-height 260ms ease;
+  z-index:490;
+}
+#mob.open{max-height:420px}
+#mob button{
+  display:block;width:100%;text-align:left;
+  background:none;border:none;
+  border-bottom:1px solid rgba(0,0,0,.08);
+  font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#000;
+  padding:15px var(--pad);
+  transition:background var(--t);
+}
+#mob button:last-child{border-bottom:none}
+#mob button:hover{background:#f6f6f6}
+
+/* ==========================================================================
+   VIEW SYSTEM
+========================================================================== */
+.v{display:none;min-height:100vh;padding-top:var(--nav)}
+.v.on{display:block}
+#v-home.on{display:flex;flex-direction:column}
+
+@keyframes fi{from{opacity:0}to{opacity:1}}
+.fi{animation:fi 200ms ease both}
+
+/* Shared section header */
+.sh{
+  display:flex;align-items:baseline;justify-content:space-between;
+  padding:52px var(--pad) 26px;
+  border-bottom:1px solid #000;
+}
+.sh-l{font-size:10px;letter-spacing:.15em;text-transform:uppercase;font-weight:400}
+.sh-r{font-size:10px;letter-spacing:.07em;opacity:.38}
+
+/* ==========================================================================
+   HOME
+   EDIT: .hm-name text, .hm-stmt text, featured image srcs + onclick index
+========================================================================== */
+
+/* Hero band: name + statement centered */
+.hm-top{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  gap:16px;
+  padding:clamp(56px,10vh,128px) var(--pad) 44px;
+  border-bottom:1px solid #000;
+}
+.hm-name{
+  font-size:clamp(52px,9.5vw,112px);
+  font-weight:700;
+  letter-spacing:.04em;
+  line-height:.93;
+  text-transform:uppercase;
+}
+.hm-stmt{
+  font-size:11px;
+  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  font-weight:400;
+  letter-spacing:.08em;
+  line-height:1.65;
+  opacity:.8;
+  display:inline-block;
+  white-space:nowrap;
+  transform-origin:center center;
+}
+
+/* Headshot strip — exponentially scaling repeating row */
+.hs-strip{
+  width:100%;
+  overflow-x:clip;   /* clip horizontal overflow only — lets tall edge images grow upward */
+  overflow-y:visible;
+  display:flex;
+  align-items:flex-end;
+  padding-bottom:0;
+}
+#hs-row{
+  display:flex;
+  align-items:flex-end;
+  gap:0;
+  width:100%;
+  justify-content:center;
+}
+#hs-row img{
+  display:block;
+  height:auto;
+  object-fit:contain;
+  flex-shrink:0;
+  transform:scaleY(1.25);
+  transform-origin:bottom center;
+}
+.hm-cap{
+  display:flex;justify-content:space-between;align-items:baseline;
+  width:100%;
+  margin-top:12px;
+  font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+}
+.hm-cap span:last-child{opacity:.38}
+
+/* ==========================================================================
+   CURSOR FOLLOWER
+========================================================================== */
+#cursor-follower{
+  position:fixed;
+  top:0;left:0;
+  width:96px;
+  pointer-events:none;
+  z-index:9999;
+  opacity:0;
+  transform:translate(-50%,-50%);
+  transition:opacity .4s ease;
+  filter:drop-shadow(0 8px 18px rgba(0,0,0,.35));
+}
+#cursor-follower img{
+  display:block;
+  width:100%;
+  height:auto;
+  object-fit:contain;
+  transform:scaleY(1.25);
+  transform-origin:center center;
+}
+
+/* ==========================================================================
+   RECENT WORKS — Britt-style hover list
+========================================================================== */
+.rw-layout{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  height:calc(100vh - var(--nav) - 52px);
+}
+.rw-img-pane{
+  position:relative;
+  overflow:hidden;
+  border-right:1px solid #000;
+}
+.rw-img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  opacity:0;
+  transition:opacity 400ms ease;
+}
+.rw-img--active{ opacity:1; }
+
+.rw-list{
+  list-style:none;
+  padding:clamp(32px,5vh,64px) var(--pad);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:0;
+}
+.rw-item{
+  font-size:clamp(11px,1.1vw,15px);
+  letter-spacing:.04em;
+  padding:14px 0;
+  border-bottom:1px solid rgba(0,0,0,.12);
+  cursor:pointer;
+  transition:opacity 200ms ease, letter-spacing 200ms ease;
+}
+.rw-item:first-child{ border-top:1px solid rgba(0,0,0,.12); }
+.rw-item:hover{ opacity:.45; letter-spacing:.1em; }
+
+/* ==========================================================================
+   SELECTED WORKS — one standalone section per project
+   Each section is its own clearly separated entry. Images display at their
+   natural aspect ratio. No masonry columns. No uniform card sizes.
+   Each container adapts entirely to the image's own proportions.
+   EDIT: add/remove .proj-section blocks; onclick index must match PROJECTS[]
+========================================================================== */
+#gallery{
+  padding:0;
+  /* No columns. Each .proj-section is full-width and self-contained. */
+}
+
+/* One project = one section */
+.proj-section{
+  padding:clamp(40px,6vh,80px) var(--pad);
+  border-bottom:1px solid #000;
+  cursor:pointer;
+}
+.proj-section:first-child{border-top:1px solid #000}
+
+/* Metadata row: index | title | year | media */
+.ps-head{
+  display:grid;
+  grid-template-columns:52px 1fr auto auto;
+  gap:12px 28px;
+  align-items:baseline;
+  padding-bottom:20px;
+  border-bottom:1px solid rgba(0,0,0,.12);
+  margin-bottom:clamp(24px,3vw,40px);
+}
+.ps-num{
+  font-size:10px;letter-spacing:.08em;opacity:.28;font-weight:500;
+}
+.ps-title{
+  font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+}
+.ps-year{
+  font-size:11px;letter-spacing:.05em;opacity:.45;
+}
+.ps-media{
+  font-size:11px;letter-spacing:.05em;opacity:.45;
+}
+
+/* Image: full column width, natural height — never cropped or distorted */
+.ps-img-wrap{
+  display:block;
+  width:100%;
+  /* No height constraint — image dictates its own height from natural ratio */
+}
+.ps-img-wrap img{
+  display:block;
+  width:100%;
+  height:auto;         /* natural aspect ratio preserved at all times        */
+  object-fit:contain;  /* no cropping; complete image always visible         */
+  transition:opacity var(--t);
+}
+.proj-section:hover .ps-img-wrap img{opacity:.82}
+
+/* ==========================================================================
+   PROJECTS — archive list
+   EDIT: add/remove .pi rows; onclick index must match PROJECTS[] in JS
+   NOTE: .pl has no horizontal padding — each .pi carries its own
+========================================================================== */
+.pl{padding:0;}
+
+
+.pi{
+  display:grid;
+  grid-template-columns:52px 1fr 64px 210px;
+  align-items:center;
+  gap:16px;
+  padding:18px var(--pad);
+  border-bottom:1px solid #000;
+  cursor:pointer;
+  transition:background var(--t),color var(--t);
+}
+.pi:first-child{border-top:1px solid #000}
+.pi:hover{background:#000;color:#fff}
+.pi:hover .pi-n,.pi:hover .pi-y,.pi:hover .pi-m{opacity:1}
+
+.pi-n{font-size:10px;letter-spacing:.08em;opacity:.28;font-weight:500}
+.pi-t{font-size:17px;font-weight:400;letter-spacing:-.01em}
+.pi-y{font-size:11px;letter-spacing:.05em;opacity:.52}
+.pi-m{font-size:11px;letter-spacing:.03em;opacity:.52;text-align:right}
+
+/* ==========================================================================
+   PROJECT DETAIL OVERLAY
+   Populated dynamically by openProj() from PROJECTS[] in JS.
+========================================================================== */
+#pd{
+  display:none;
+  position:fixed;inset:0;
+  background:#fff;
+  overflow-y:auto;
+  z-index:450;
+  padding-top:var(--nav);
+  opacity:0;
+  transition:opacity var(--t);
+}
+#pd.show{display:block}
+#pd.in{opacity:1}
+
+/* Sticky sub-bar inside detail */
+.pd-bar{
+  position:sticky;top:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px var(--pad);
+  border-bottom:1px solid #000;
+  background:#fff;z-index:10;
+}
+.pd-back{
+  background:none;border:none;
+  font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:#000;
+  display:flex;align-items:center;gap:8px;
+  transition:opacity var(--t);
+}
+.pd-back::before{content:'←';font-size:14px}
+.pd-back:hover{opacity:.4}
+.pd-crumb{font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.38}
+
+.pd-body{
+  padding:56px var(--pad) 100px;
+  max-width:min(960px,100%);
+  margin:0 auto;
+}
+
+/* Main work image in project detail — never cropped or distorted */
+.pd-img-wrap{
+  margin-bottom:52px;
+  cursor:zoom-in;
+}
+.pd-img-wrap img{
+  display:block;
+  width:100%;
+  height:auto;        /* preserves natural aspect ratio */
+  object-fit:contain; /* no cropping; full image visible */
+  transition:opacity var(--t);
+}
+.pd-img-wrap:hover img{opacity:.86}
+
+/* Info grid */
+.pd-info{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  column-gap:40px;
+  row-gap:28px;
+  padding-bottom:52px;
+  border-bottom:1px solid #000;
+  margin-bottom:64px;
+}
+.pd-h{
+  grid-column:1/-1;
+  font-size:clamp(26px,3.8vw,48px);
+  font-weight:600;
+  letter-spacing:-.025em;
+}
+.pd-f label{
+  display:block;
+  font-size:9px;letter-spacing:.15em;text-transform:uppercase;opacity:.36;
+  margin-bottom:5px;
+}
+.pd-f p{font-size:13px;letter-spacing:.02em}
+.pd-desc{
+  grid-column:1/-1;
+  font-size:14px;line-height:1.82;
+  max-width:600px;opacity:.74;
+  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  font-weight:400;
+  letter-spacing:.052em;
+}
+.pd-desc p+p{ margin-top:1em; }
+
+/* Related images section — empty state shown until images are added */
+.pd-rel-h{
+  font-size:9px;letter-spacing:.15em;text-transform:uppercase;opacity:.36;
+  padding-bottom:12px;border-bottom:1px solid #000;margin-bottom:24px;
+}
+.pd-rel-empty{
+  font-size:11px;letter-spacing:.04em;opacity:.32;
+  padding:32px 0;
+  border:1px dashed rgba(0,0,0,.2);
+  text-align:center;
+}
+.pd-rel-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:20px;
+}
+/* Related images also display at natural ratio — no cropping */
+.pd-rel-grid img{
+  display:block;
+  width:100%;
+  height:auto;
+  object-fit:contain;
+  cursor:zoom-in;
+  transition:opacity var(--t);
+}
+.pd-rel-grid img:hover{opacity:.76}
+
+/* ==========================================================================
+   ABOUT
+   EDIT: replace placeholder paragraphs with bio + practice statement
+========================================================================== */
+.ab-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:clamp(40px,7vw,108px);
+  padding:56px var(--pad) 100px;
+}
+.ab-col{display:flex;flex-direction:column}
+.ab-col h2{
+  font-size:10px;letter-spacing:.15em;text-transform:uppercase;font-weight:400;
+  padding-bottom:12px;border-bottom:1px solid #000;margin-bottom:24px;
+}
+.ab-col p{font-size:14px;line-height:1.84;opacity:.8;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:400}
+.ab-col p+p{margin-top:16px}
+.ab-img-col{overflow:hidden;align-self:stretch;transform:translateX(-75px)}
+.ab-img-col img{display:block;height:100%;width:auto}
+
+/* ==========================================================================
+   CV
+   EDIT: update entries; add/remove .cv-row blocks in each section
+========================================================================== */
+.cv-layout{display:flex;align-items:stretch;overflow:hidden}
+.cv-wrap{flex:0 0 auto;width:min(680px,60%);padding:56px var(--pad) 100px}
+.cv-oni{
+  flex:0 0 auto;
+  align-self:stretch;
+  transform:translateX(200px);
+}
+.cv-oni img{
+  display:block;
+  height:100%;
+  width:auto;
+}
+.cv-sec{margin-bottom:52px}
+.cv-sh{
+  font-size:10px;letter-spacing:.15em;text-transform:uppercase;font-weight:400;
+  padding-bottom:10px;border-bottom:1px solid #000;margin-bottom:4px;
+}
+.cv-row{
+  display:grid;grid-template-columns:96px 1fr;gap:20px;
+  padding:13px 0;border-bottom:1px solid rgba(0,0,0,.1);
+}
+.cv-yr{font-size:11px;letter-spacing:.04em;opacity:.36;padding-top:2px;white-space:nowrap}
+.cv-inf strong{display:block;font-size:13px;font-weight:600}
+.cv-inf span{display:block;font-size:12px;opacity:.52;margin-top:2px}
+
+/* ==========================================================================
+   CONTACT
+   EDIT: update email, Instagram handle, additional links
+========================================================================== */
+.ct-wrap{padding:56px var(--pad) 100px;max-width:520px;margin:0 auto;display:flex;flex-direction:column;align-items:center;text-align:center}
+.ct-list{width:100%}
+.ct-hl{
+  font-size:clamp(34px,5.5vw,60px);font-weight:600;
+  letter-spacing:-.028em;line-height:1.06;
+  margin-bottom:60px;
+}
+.ct-list{list-style:none}
+.ct-list li{border-bottom:1px solid #000}
+.ct-list li:first-child{border-top:1px solid #000}
+.ct-list a{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:17px 0;
+  transition:opacity var(--t);
+}
+.ct-list a:hover{opacity:.4}
+.ct-v{font-size:14px;letter-spacing:.02em}
+.ct-p{font-size:9px;letter-spacing:.15em;text-transform:uppercase;opacity:.38}
+
+/* ==========================================================================
+   FOOTER
+========================================================================== */
+.site-footer{
+  padding:20px var(--pad);
+  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  font-weight:400;
+  font-size:10px;
+  letter-spacing:.04em;
+  opacity:.55;
+  text-align:center;
+}
+
+/* ==========================================================================
+   LIGHTBOX
+========================================================================== */
+#lb{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(255,255,255,.96);
+  z-index:600;
+  align-items:center;justify-content:center;
+  opacity:0;transition:opacity var(--t);
+  cursor:zoom-out;
+}
+#lb.show{display:flex}
+#lb.in{opacity:1}
+#lb img{max-width:90vw;max-height:88vh;object-fit:contain;cursor:default}
+.lb-x{
+  position:absolute;top:20px;right:var(--pad);
+  background:none;border:none;
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#000;
+  transition:opacity var(--t);
+}
+.lb-x:hover{opacity:.38}
+
+/* ==========================================================================
+   RESPONSIVE
+========================================================================== */
+@media(max-width:860px){
+  /* gallery is already single-column sections — no column change needed */
+  .ps-head{grid-template-columns:40px 1fr auto}
+  .ps-media{display:none}
+  .hm-top{grid-template-columns:1fr;gap:18px}
+  .hm-stmt{text-align:left;max-width:100%}
+  .pi{grid-template-columns:40px 1fr 56px}
+  .pi-m{display:none}
+  .ab-grid{grid-template-columns:1fr;gap:48px}
+  .pd-info{grid-template-columns:1fr 1fr}
+}
+@media(max-width:540px){
+  .ps-head{grid-template-columns:32px 1fr;gap:10px 16px}
+  .ps-year{display:none}
+  .n-links{display:none}
+  .burger{display:flex}
+  .hm-grid{grid-template-columns:1fr;background:#fff}
+  .hm-cell+.hm-cell{border-top:1px solid #000}
+  .pi{grid-template-columns:32px 1fr 44px;gap:10px}
+  .pd-info{grid-template-columns:1fr}
+  .pd-h,.pd-desc{grid-column:1}
+}
+
+</style>
+</head>
+<body>
+
+<!-- ==========================================================================
+     NAV
+     EDIT: Change "Artist Name" in the .n-logo button (line below)
+========================================================================== -->
+<nav id="nav" aria-label="Main navigation" style="display:none">
+
+  <!-- EDIT: Artist name in the nav bar -->
+  <button class="n-logo" onclick="go('home')">Henry Wang</button>
+
+  <ul class="n-links" role="list">
+    <li><button onclick="go('home')"     data-p="home">Home</button></li>
+    <li><button onclick="go('works')"    data-p="works">Recent Works</button></li>
+    <li><button onclick="go('paintings')" data-p="paintings">Paintings</button></li>
+    <li><button onclick="go('about')"    data-p="about">Artist Statement</button></li>
+    <li><button onclick="go('cv')"       data-p="cv">CV</button></li>
+    <li><button onclick="go('contact')"  data-p="contact">Contact</button></li>
+  </ul>
+
+  <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false">
+    <i></i><i></i><i></i>
+  </button>
+</nav>
+
+<!-- Mobile menu -->
+<div id="mob" aria-label="Mobile navigation">
+  <button onclick="go('home');     closeMenu()">Home</button>
+  <button onclick="go('works');    closeMenu()">Recent Works</button>
+  <button onclick="go('paintings'); closeMenu()">Paintings</button>
+  <button onclick="go('about');    closeMenu()">Artist Statement</button>
+  <button onclick="go('cv');       closeMenu()">CV</button>
+  <button onclick="go('contact');  closeMenu()">Contact</button>
+</div>
+
+<main>
+
+<!-- ==========================================================================
+     HOME
+     EDIT: .hm-name text (artist name, large)
+     EDIT: .hm-stmt text (one-line statement)
+     EDIT: featured cells — change onclick(N) to project index, update src/alt
+========================================================================== -->
+<section id="v-home" class="v on" aria-label="Home">
+
+  <div class="hm-top">
+    <!-- EDIT: Artist name — large hero text -->
+    <h1 class="hm-name">Henry Wang</h1>
+    <!-- EDIT: One-line artist statement -->
+    <p class="hm-stmt">The un-niche and inconsistent</p>
+  </div>
+
+  <ul class="hm-nav" role="list">
+    <li><button onclick="go('works')"    data-p="works">Recent Works</button></li>
+    <li><button onclick="go('about')"    data-p="about">Artist Statement</button></li>
+    <li><button onclick="go('paintings')" data-p="paintings">Paintings</button></li>
+    <li><button onclick="go('cv')"       data-p="cv">CV</button></li>
+    <li><button onclick="go('contact')"  data-p="contact">Contact</button></li>
+  </ul>
+
+  <!-- Exponentially scaling headshot strip — built by JS -->
+  <div class="hs-strip">
+    <div id="hs-row"></div>
+  </div>
+
+</section>
+
+<!-- ==========================================================================
+     SELECTED WORKS
+     EDIT: Add/remove .gi articles to manage gallery.
+     Each needs: image src + alt, onclick index matching PROJECTS[], title, meta.
+     EDIT: Update count in .sh-r when adding/removing works.
+========================================================================== -->
+<section id="v-works" class="v" aria-label="Recent Works">
+
+  <div class="sh">
+    <span class="sh-l">Recent Works</span>
+    <span class="sh-r">7 Works — 2026</span><!-- EDIT: Update count -->
+  </div>
+
+  <div class="rw-layout">
+
+    <!-- Left: large image that swaps on hover -->
+    <div class="rw-img-pane">
+      <img id="rw-img-a" class="rw-img rw-img--active" src="images/Being.jpg" alt="">
+      <img id="rw-img-b" class="rw-img" src="" alt="">
+    </div>
+
+    <!-- Right: project list -->
+    <ul class="rw-list">
+      <li class="rw-item" data-img="images/Being.jpg"              data-i="0">01 — Being</li>
+      <li class="rw-item" data-img="images/Country Boy.jpg"        data-i="1">02 — Country Boy</li>
+      <li class="rw-item" data-img="images/Cubic Liminal.jpg"      data-i="2">03 — Cubic Liminal</li>
+      <li class="rw-item" data-img="images/Dancer's Hemorrhage.jpg" data-i="3">04 — Dancer's Hemorrhage</li>
+      <li class="rw-item" data-img="images/Dinner For One.jpg"     data-i="4">05 — Dinner For One</li>
+      <li class="rw-item" data-img="images/Stay.jpg"               data-i="5">06 — Stay</li>
+      <li class="rw-item" data-img="images/The Way Forward.jpg"    data-i="6">07 — The Way Forward</li>
+    </ul>
+
+  </div>
+</section>
+
+<!-- ==========================================================================
+     PROJECTS — archive listing
+     EDIT: Add/remove .pi rows. onclick index must match PROJECTS[] in JS.
+     EDIT: Update .pi-m text (medium) for each row.
+========================================================================== -->
+<section id="v-paintings" class="v" aria-label="Paintings">
+
+  <div class="sh">
+    <span class="sh-l">Paintings</span>
+    <span class="sh-r">2026</span>
+  </div>
+
+  <!-- CACHED — restore by uncommenting the block below
+  <div class="pl" role="list">
+    <div class="pi" onclick="openProj(0)" tabindex="0" role="listitem">
+      <span class="pi-n">01</span><span class="pi-t">Being</span>
+      <span class="pi-y">2026</span><span class="pi-m">Mixed Media</span>
+    </div>
+    <div class="pi" onclick="openProj(1)" tabindex="0" role="listitem">
+      <span class="pi-n">02</span><span class="pi-t">Country Boy</span>
+      <span class="pi-y">2026</span><span class="pi-m">Mixed Media</span>
+    </div>
+    <div class="pi" onclick="openProj(2)" tabindex="0" role="listitem">
+      <span class="pi-n">03</span><span class="pi-t">Cubic Liminal</span>
+      <span class="pi-y">2026</span><span class="pi-m">Mixed Media</span>
+    </div>
+    <div class="pi" onclick="openProj(3)" tabindex="0" role="listitem">
+      <span class="pi-n">04</span><span class="pi-t">Dancer's Hemorrhage</span>
+      <span class="pi-y">2026</span><span class="pi-m">Mixed Media</span>
+    </div>
+    <div class="pi" onclick="openProj(4)" tabindex="0" role="listitem">
+      <span class="pi-n">05</span><span class="pi-t">Dinner For One</span>
+      <span class="pi-y">2026</span><span class="pi-m">Mixed Media</span>
+    </div>
+    <div class="pi" onclick="openProj(5)" tabindex="0" role="listitem">
+      <span class="pi-n">06</span><span class="pi-t">Stay</span>
+      <span class="pi-y">2026</span><span class="pi-m">Mixed Media</span>
+    </div>
+    <div class="pi" onclick="openProj(6)" tabindex="0" role="listitem">
+      <span class="pi-n">07</span><span class="pi-t">The Way Forward</span>
+      <span class="pi-y">2026</span><span class="pi-m">Mixed Media</span>
+    </div>
+  </div>
+  END CACHE -->
+
+  <div class="pl" role="list"></div>
+</section>
+
+<!-- ==========================================================================
+     ABOUT
+     EDIT: Replace all placeholder paragraphs with real biography + practice text
+========================================================================== -->
+<section id="v-about" class="v" aria-label="Artist Statement">
+
+  <div class="sh"><span class="sh-l">Artist Statement</span></div>
+
+  <div class="ab-grid">
+
+    <div class="ab-col">
+      <p>From the earliest time the idea of personifying the environment was memorialized, it has always lingered in my consciousness. Whether it was a smoky street, soft beanbags, or the smell of cocoa beans in the coffee machine, all left the remnants of being human. Growing up in Beijing, China, everything was loud, rambunctious, and lively. It reminded me of how intense human interactions were in a world so different from the West. My grandpa's morning routine of waking us up at 6:30 am sharp for his daily exercise is undoubtedly warm. These small rocks of memory on the grand path have become my stepping stone, delving into early memories of feeling loved, confused, sad, and despairing. Constantly moving in my life shaped these experiences into nostalgia, often looking back on them to reminisce about the "good old times", where art meant nothing more than a ballpoint pen on a piece of lined paper.</p>
+      <p>Through painting, I began wandering. Both mentally and physically, creating characters of my own imagination to reiterate and represent the void created by many incidents of my daily life. Colours; there, I was always bewildered by the sheer prominence that a colour could hold. Red for fury, blue for sadness, white for purity, and so on. Throughout the experiments, I have learnt to control and manipulate colours to work in my favour and to take chances to prosper in every aspect of my work. Certain colours for absurdism, ones that have no purpose being layered together, when I fixated on a glimpse of a porcelain vase in the Forbidden City back in the old country. It opened a window to my rooted imagination in culture, adaptivity, and relationships.</p>
+      <p>Idioms, phenomena, and vague imagery. Many of my paintings and installations primarily depend on these three ideals. Form, composition, and configuration are the basis for how I portray my work, in a very specific way that captures both the essence of the material and the unseen forces beyond it. Sometimes rational, sometimes not. Form becomes more than just representation; it is a voice for bringing my thoughts to life. Many of my installations also focus on the movement of the specific three-dimensional imagery I am trying to present; swift like dancers or body curvatures, they began to come alive in the realm of my own imagination. Form and expression are also starkly evident in my films and photography. It has brought me the utmost joy when it comes to 1:1 representation of an event or person; from abstract video essays to memoirs, and even myself, I have learned to control the absurdity: writing love letters to my past self about all my experiences as a newcomer to this green world.</p>
+      <p style="margin-top:auto;padding-top:48px;font-size:14px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:400;opacity:.8;">Henry Wang, uninterrupted.</p>
+    </div>
+
+    <div class="ab-img-col">
+      <img src="images/artist.jpg" alt="Artist Statement">
+    </div>
+
+  </div>
+</section>
+
+<!-- ==========================================================================
+     CV
+     EDIT: Update all entries. Add/remove .cv-row blocks within each section.
+========================================================================== -->
+<section id="v-cv" class="v" aria-label="CV">
+
+  <div class="sh">
+    <span class="sh-l">CV</span>
+    <span class="sh-r">Henry Wang</span>
+  </div>
+
+  <div class="cv-layout">
+  <div class="cv-wrap">
+
+    <!-- EDUCATION -->
+    <div class="cv-sec">
+      <h2 class="cv-sh">Education</h2>
+      <div class="cv-row">
+        <span class="cv-yr">2025 –</span>
+        <div class="cv-inf"><strong>Carnegie Mellon University</strong><span>Pittsburgh, PA</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2020 – 2025</span>
+        <div class="cv-inf"><strong>British Columbia Creative Center</strong><span>Vancouver, BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2020 – 2025</span>
+        <div class="cv-inf"><strong>Point Grey Secondary School</strong><span>Vancouver, BC</span></div>
+      </div>
+    </div>
+
+    <!-- EXHIBITIONS -->
+    <div class="cv-sec">
+      <h2 class="cv-sh">Exhibitions</h2>
+      <div class="cv-row">
+        <span class="cv-yr">2025</span>
+        <div class="cv-inf"><strong>"For &amp; To Be"</strong><span>Solo Exhibition — Ellis Gallery, Pittsburgh PA</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2025</span>
+        <div class="cv-inf"><strong>"Friend of a Friend"</strong><span>Group Exhibition — The Frame Gallery, Pittsburgh PA</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2025</span>
+        <div class="cv-inf"><strong>"Threshold 18 — Metamorphosis"</strong><span>Solo Exhibition — JIG Space Gallery, Vancouver BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2024</span>
+        <div class="cv-inf"><strong>David Evans Scholarship Nominees Group Exhibition</strong><span>New Arts Foundation of Vancouver, North Vancouver BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2024</span>
+        <div class="cv-inf"><strong>Point Grey Secondary School Art Exhibition</strong><span>Vancouver, BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>"Peace of My Mind"</strong><span>Solo Exhibition — Lipont Gallery, Richmond BC</span></div>
+      </div>
+    </div>
+
+    <!-- AWARDS & ACHIEVEMENTS -->
+    <div class="cv-sec">
+      <h2 class="cv-sh">Awards &amp; Achievements</h2>
+      <div class="cv-row">
+        <span class="cv-yr">2026</span>
+        <div class="cv-inf"><strong>Wilfred Readio Award</strong><span>Carnegie Mellon School of Art, Pittsburgh PA</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2025</span>
+        <div class="cv-inf"><strong>Grad Class Valedictorian</strong><span>Point Grey Secondary School, Vancouver BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2025</span>
+        <div class="cv-inf"><strong>Merit Award &amp; Scholarship</strong><span>Point Grey Secondary School, Vancouver BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2024</span>
+        <div class="cv-inf"><strong>12th Youth World Cup Live Painting — First Place</strong><span>UNICEF, Richmond BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2024</span>
+        <div class="cv-inf"><strong>12th Youth World Cup Live Painting — Auction Certificate</strong><span>UNICEF, Vancouver BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2024</span>
+        <div class="cv-inf"><strong>David Evans Scholarship</strong><span>New Arts Foundation of Vancouver, Vancouver BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2024</span>
+        <div class="cv-inf"><strong>Excellence in Athletics Certificate Award</strong><span>Point Grey Secondary School, Vancouver BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>11th Youth World Cup Live Painting — First Place</strong><span>UNICEF, Richmond BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>Outstanding Entrepreneurship Award</strong><span>Young Elite Vancouver, Vancouver BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>Fine and Performing Arts Award</strong><span>Point Grey Secondary School, Vancouver BC</span></div>
+      </div>
+    </div>
+
+    <!-- EXPERIENCE -->
+    <div class="cv-sec">
+      <h2 class="cv-sh">Experience</h2>
+      <div class="cv-row">
+        <span class="cv-yr">2026 –</span>
+        <div class="cv-inf"><strong>Media &amp; Outreach — CMU MoonMiners (Lunabotics)</strong><span>Pittsburgh, PA</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2026 –</span>
+        <div class="cv-inf"><strong>Art Ambassador</strong><span>CMU School of Art, Pittsburgh PA</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2025 –</span>
+        <div class="cv-inf"><strong>Marketing Assistant</strong><span>The University Store CMU, Pittsburgh PA</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2025 –</span>
+        <div class="cv-inf"><strong>Event Coordinator</strong><span>PASAGE Studios CMU, Pittsburgh PA</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2025 –</span>
+        <div class="cv-inf"><strong>Public Relations</strong><span>Pi Kappa Alpha Fraternity CMU, Pittsburgh PA</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2025 –</span>
+        <div class="cv-inf"><strong>Junior Art Instructor</strong><span>British Columbia Creative Center, Vancouver BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2024 – 2025</span>
+        <div class="cv-inf"><strong>Art Teacher Assistant</strong><span>ArtShu. Inc, Vancouver BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023 – 2025</span>
+        <div class="cv-inf"><strong>Volunteer</strong><span>Vancouver Art Gallery, Vancouver BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023 – 2025</span>
+        <div class="cv-inf"><strong>Volunteer Coach — Special Olympics Basketball</strong><span>Vancouver, BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2021 – 2022</span>
+        <div class="cv-inf"><strong>Junior Coach</strong><span>Empower Basketball Club, Vancouver BC</span></div>
+      </div>
+    </div>
+
+    <!-- BIBLIOGRAPHY & PRESS -->
+    <div class="cv-sec">
+      <h2 class="cv-sh">Bibliography &amp; Press</h2>
+      <div class="cv-row">
+        <span class="cv-yr">2026</span>
+        <div class="cv-inf"><strong>LEMON Publication</strong><span>Issue #04: From Trash to Treasure, p.31 — Print, Magazine</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2026</span>
+        <div class="cv-inf"><strong>PillBox Publication</strong><span>Issue #06: Flourish, Cover — Print, Newspaper</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2026</span>
+        <div class="cv-inf"><strong>PillBox Publication</strong><span>Issue #03: Flourish, Cover — Print, Newspaper</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2026</span>
+        <div class="cv-inf"><strong>The Tartan</strong><span>"2026 calls for new trends in jeans and style" — Online</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2024</span>
+        <div class="cv-inf"><strong>BCBUSINESS</strong><span>"Giving It Away: Philanthropy is alive and well in BC," p.54 — Print, Magazine</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>Richmond News</strong><span>Hui, Vikki — Online</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>Global News</strong><span>"Peace of My Mind" — Online</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>Georgia Straight</strong><span>Online</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>City of Richmond — Community and Culture</strong><span>Online</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>He, Shawn. Foreword, "Peace of My Mind"</strong><span>Print</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>Ticar, Jay. Afterword, "Peace of My Mind"</strong><span>Print</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>Lipont Gallery</strong><span>Online</span></div>
+      </div>
+    </div>
+
+    <!-- PRIVATE COLLECTION -->
+    <div class="cv-sec">
+      <h2 class="cv-sh">Private Collection</h2>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>"Sensory"</strong><span>Mr. Dario Meli, Vancouver BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>"An Unforgettable Memory"</strong><span>Mrs. Li Yu, Vancouver BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>"The Vision"</strong><span>Mr. Han Chang Qing, Shandong, China</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>"Swirly Sounding Body of Water"</strong><span>Mr. Chen Sheng Cheng, Richmond BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>"Forest Beneath the Clouds"</strong><span>Mr. Zheng Yong He, Richmond BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>"Cactus Face"</strong><span>Mr. Yang Hong Peng, Vancouver BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>"Spirits And Red Chair"</strong><span>Mr. William Ma, Vancouver BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>"Red Brick Wall"</strong><span>Mr. Liu Chao Fang, Vancouver BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>"Instructor in the Top Hat"</strong><span>Mr. Shawn He, Richmond BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2023</span>
+        <div class="cv-inf"><strong>"Vineyard"</strong><span>Mr. Bai Ji Ping, Mission BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2022</span>
+        <div class="cv-inf"><strong>"Freshly Painted Red"</strong><span>Mr. Zhang Guang Hui, Richmond BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2022</span>
+        <div class="cv-inf"><strong>"Snowfall"</strong><span>Mr. Liu Jiang Chuan, Coquitlam BC</span></div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-yr">2020</span>
+        <div class="cv-inf"><strong>"Blue Road And Natural Fantasy"</strong><span>Ms. Tracy Li, Vancouver BC</span></div>
+      </div>
+    </div>
+
+  </div><!-- /.cv-wrap -->
+
+  <div class="cv-oni">
+    <img src="images/oni.jpg" alt="Oni">
+  </div>
+
+  </div><!-- /.cv-layout -->
+</section>
+
+<!-- ==========================================================================
+     CONTACT
+     EDIT: Update email, Instagram, and additional links below
+========================================================================== -->
+<section id="v-contact" class="v" aria-label="Contact">
+
+  <div class="sh"><span class="sh-l">Contact</span></div>
+
+  <div class="ct-wrap">
+    <!-- EDIT: Contact headline -->
+    <p class="ct-hl">Reach me</p>
+
+    <ul class="ct-list">
+      <li>
+        <a href="mailto:henrymqwang@gmail.com">
+          <span class="ct-v">henrymqwang@gmail.com</span>
+          <span class="ct-p">Email</span>
+        </a>
+      </li>
+      <li>
+        <a href="https://instagram.com/areyouhenry" target="_blank" rel="noopener noreferrer">
+          <span class="ct-v">@areyouhenry</span>
+          <span class="ct-p">Instagram</span>
+        </a>
+      </li>
+      <li>
+        <a href="https://linkedin.com/in/henry-wang-564726344" target="_blank" rel="noopener noreferrer">
+          <span class="ct-v">linkedin.com/in/henry-wang-564726344</span>
+          <span class="ct-p">LinkedIn</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">© 2026 by Henry Ming Qian Wang All rights reserved.</footer>
+
+<!-- ==========================================================================
+     PROJECT DETAIL OVERLAY
+     Populated dynamically by openProj() from PROJECTS[] in JS.
+     To add related images: edit each project's "related" array in JS below.
+========================================================================== -->
+<div id="pd" role="dialog" aria-modal="true" aria-label="Project detail">
+
+  <div class="pd-bar">
+    <button class="pd-back" onclick="closeProj()">Back</button>
+    <span class="pd-crumb" id="pd-crumb"></span>
+  </div>
+
+  <div class="pd-body">
+
+    <!-- Main image / video — toggled by openProj() -->
+    <div class="pd-img-wrap" id="pd-img-wrap">
+      <img id="pd-img" src="" alt="">
+      <video id="pd-vid" src="" autoplay loop muted playsinline style="display:none;width:100%;height:auto;cursor:pointer;" title="Click to toggle sound"></video>
+      <p id="pd-vid-hint" style="display:none;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:400;font-size:9px;letter-spacing:.08em;text-transform:uppercase;opacity:.4;margin-top:8px;">Click for sound</p>
+    </div>
+
+    <!-- Project metadata -->
+    <div class="pd-info">
+      <h1 class="pd-h" id="pd-title"></h1>
+
+      <div class="pd-f">
+        <label>Year</label>
+        <p id="pd-year">2026</p>
+      </div>
+      <div class="pd-f">
+        <label>Medium</label>
+        <p id="pd-med"></p>
+      </div>
+      <div class="pd-f">
+        <label>Dimensions</label>
+        <p id="pd-dim"></p>
+      </div>
+
+      <p class="pd-desc" id="pd-desc"></p>
+    </div>
+
+    <!-- =========================================================
+         RELATED IMAGES
+         Populated dynamically from each project's "related" array in
+         the PROJECTS constant in the <script> below.
+
+         TO ADD RELATED IMAGES FOR A PROJECT:
+         ─────────────────────────────────────
+         Find the project in PROJECTS[] and add image objects:
+
+           related: [
+             { src: 'images/Being.jpg',       alt: 'Being — detail view' },
+             { src: 'images/your-image.jpg',  alt: 'Description'         }
+           ]
+
+         Each image will render at its natural aspect ratio (no cropping).
+         Each image is clickable and opens the lightbox.
+         ========================================================= -->
+    <div id="pd-rel">
+      <div class="pd-rel-h">Related Images</div>
+      <div class="pd-rel-grid" id="pd-rel-grid"></div>
+      <div class="pd-rel-empty" id="pd-rel-empty">
+        No related images yet — add them via the <code>related</code> array in PROJECTS[]
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==========================================================================
+     LIGHTBOX
+========================================================================== -->
+<div id="lb" role="dialog" aria-modal="true" aria-label="Image viewer" onclick="lbOut(event)">
+  <button class="lb-x" onclick="closeLB()" aria-label="Close">Close</button>
+  <img id="lb-img" src="" alt="" onclick="event.stopPropagation()">
+</div>
+
+<!-- ==========================================================================
+     JAVASCRIPT
+========================================================================== -->
+<script>
+
+// ==========================================================================
+// PROJECT DATA
+// EDIT: Update medium, dims, desc for each project.
+// EDIT: Add related images by adding objects to each "related" array:
+//       { src: 'images/filename.jpg', alt: 'Alt text' }
+// Array index (0–6) MUST match onclick="openProj(N)" in the HTML above.
+// ==========================================================================
+const PROJECTS = [
+  {
+    title:  'Being',
+    image:  'images/Being.jpg',
+    video:  'images/Being/Being.mp4',
+    year:   '2026',
+    medium: 'Mixed Media',
+    dims:   '1920 × 1080 px',
+    desc:   'In this piece, Being, I explored the idea of both being myself and becoming myself through the burdens of my once-absent father. A direct memo to the years of contemplation and reflection about the man whom I only got to know recently. It is also about my overcomings, which drew heavily on my other piece "Therefore I Became" in both usage and meaning. These two pieces become intertwined in a way. Exploring deeper into the idea of Filial Piety, and how that does not apply in circumstances such as this one. As I have gotten older, I have felt more inclined to learn about and understand this strange man who claims to love me unconditionally, and not antagonize him. I am always in the process of becoming, and ultimately being. A boy who wanders, a son to a father.',
+    related: [
+      // ADD RELATED IMAGES FOR THIS PROJECT HERE
+    ]
+  },
+  {
+    title:  'Country Boy',
+    image:  'images/Country Boy.jpg',
+    year:   '2026',
+    medium: 'Mixed Media',
+    dims:   '24 × 8 × 12 in',
+    desc:   'Bleeding green, like jade green, the emperor\'s lair and the army under his command; each becoming less and less prominent than the last. Encased, the boy finds himself lost in the endless columns of the catacomb, seeing the faded mirage of warriors just like himself. He remembers his old house, his grandparents\' grave, and the place where he would have called home. Now it\'s no more, nothing more than communal history, unresolved.',
+    related: [
+      { src: 'images/Country Boy/COUNTRYBOY-254.jpg', alt: 'Country Boy' },
+      { src: 'images/Country Boy/COUNTRYBOY-263.jpg', alt: 'Country Boy' },
+      { src: 'images/Country Boy/COUNTRYBOY-274.jpg', alt: 'Country Boy' },
+      { src: 'images/Country Boy/COUNTRYBOY-281.jpg', alt: 'Country Boy' },
+      { src: 'images/Country Boy/COUNTRYBOY-288.jpg', alt: 'Country Boy' },
+      { src: 'images/Country Boy/COUNTRYBOY-293.jpg', alt: 'Country Boy' },
+      { src: 'images/Country Boy/COUNTRYBOY-298.jpg', alt: 'Country Boy' },
+      { src: 'images/Country Boy/COUNTRYBOY-308.jpg', alt: 'Country Boy' },
+      { src: 'images/Country Boy/COUNTRYBOY-309.jpg', alt: 'Country Boy' },
+      { src: 'images/Country Boy/COUNTRYBOY-325.jpg', alt: 'Country Boy' },
+      { src: 'images/Country Boy/COUNTRYBOY-332.jpg', alt: 'Country Boy' },
+      { src: 'images/Country Boy/COUNTRYBOY.jpg',     alt: 'Country Boy' }
+    ]
+  },
+  {
+    title:  'Cubic Liminal',
+    image:  'images/Cubic Liminal.jpg',
+    year:   '2026',
+    medium: 'Mixed Media',
+    dims:   '14 × 14 × 14 in',
+    desc:   'This project began as a collaboration with Pittsburgh photographer George Lange, exploring the liminal "boxes" that surround us in our everyday lives. I created an initial prototype in which the boxes were made of cardboard, with the interiors painted to represent shifting inner realities. We launched this on MLK Day at Club Café, inviting guests to wear the boxes and be photographed in support of UPMC Children\'s Hospital. The event produced a range of compelling images and helped us evaluate both the conceptual and material limits of the work, especially our desire to have better control over structure, surface, and the role of light.\n\nBuilding on this, I collaborated with Allen Chen, a sophomore in architecture at Carnegie Mellon University, to develop a second prototype using digital fabrication to create a nicer finish on the outside. Inspired by the UPMC Children\'s Hospital initiative, we reflected on our childhood. By comparing and contrasting our cultural differences through memory, heritage, and nostalgia, we created two boxes that together form an amalgamation of our culture. The first reimagined portrait photographs from Lange\'s archive onto small painted wooden panels, where distortion and light emphasized fading memory and loss.\n\nThe second introduced fragmented, geometric openings inspired by childhood toy blocks, paired with an adjustable frosted acrylic panel to reflect the blur and instability of memory. Both boxes were painted red, referencing our shared East Asian heritage and evoking cultural nostalgia. We presented this prototype in a small studio event, where participants engaged directly with the work.\n\nOur end goal for this project is currently in the planning stage. We aim to create a series where people can find their inner childhood, memories, and relationships through the experience of putting on a "liminal box". We hope to showcase the success through the combination of fine arts, architecture, and photography. Promoting interdisciplinary collaboration can shape shared experiences and build on each other\'s success.',
+    related: [
+      { src: 'images/Cubic Liminal/2026.02.06_02_004.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_009.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_026.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_043.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_087.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_098.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_104.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_119.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_125.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_135.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_140.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_149.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_219.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_231.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_257.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_289.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_346.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_438.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_540.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/2026.02.06_02_582.jpg', alt: 'Cubic Liminal' }
+    ]
+  },
+  {
+    title:  "Dancer's Hemorrhage",
+    image:  "images/Dancer's Hemorrhage.jpg",
+    year:   '2026',
+    medium: 'Mixed Media',
+    dims:   '25 × 42 × 26 in',
+    desc:   'Beauty, pain, and the dwelling subconscious that goes without saying. In a world full of martyrs, the dancer sought not to be one. Beyond the physical, she dances without the gratification, just the sheer will and resilience to truly express herself. In contrast to the dancer, I often see myself as a victim of my environment, creating precarious excuses for circumstances I can fully overcome. Yet, when I fully realize just how lucky I am to be alive, to survive, even through unbearable pain and discomfort, a calmness overtakes me. Like David, who dances undignified in front of the lord with all his might, I must do the same. I must dance in the face of life and seek an overwhelming happiness that makes me forget the physical. The dancer carries her wounded body and a sign of resilience; she dances on, and so must I.',
+    related: [
+      { src: "images/Dancer's Hemorrhage/DSC01242.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01244.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01253.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01264.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01308.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01311.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01328.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01331.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01336.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01338.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01342.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01344.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01354.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01357.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01359.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01361.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01366.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01369.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01375.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01379.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01381.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01383.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01386.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01388.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01397.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01403.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01407.jpg", alt: "Dancer's Hemorrhage" },
+      { src: "images/Dancer's Hemorrhage/DSC01411.jpg", alt: "Dancer's Hemorrhage" }
+    ]
+  },
+  {
+    title:  'Dinner For One',
+    image:  'images/Dinner For One.jpg',
+    year:   '2026',
+    medium: 'Mixed Media',
+    dims:   '48 × 56 × 50 in',
+    desc:   'We are always deciding whether to play the hand we are dealt or give in to pure absurdity. But that doesn\'t exist. The dinner that was served did not come from a place of brightness; instead, it came from a place of unreasonable silence. This place has no meaning, and things have no names. You can identify them as plates, cups, and photographs sitting on a tablecloth. For the victims who have fallen to the curse of trying to find the meaning in this place of unreasonable silence, this is their shrine. For those who took too long to gander but ultimately pulled away, this is their requiem. We keep trying to grasp the essence of the absurd. We pay much more attention to the sounds made by jagged rainfall than to stop and observe the eulogy left behind by those who gave in to chance. A chance of becoming a victim behind the silence, or the chance to forget this dinner and live inauthentically. I resorted to playing the hand that I was dealt.',
+    related: [
+      { src: 'images/Dinner For One/Dinner-03.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-04.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-05.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-06.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-07.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-08.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-09.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-10.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-11.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-12.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-13.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-14.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-15.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-16.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-17.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-18.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-19.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-20.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-21.jpg', alt: 'Dinner For One' },
+      { src: 'images/Dinner For One/Dinner-22.jpg', alt: 'Dinner For One' }
+    ]
+  },
+  {
+    title:  'Stay',
+    image:  'images/Stay.jpg',
+    video:  'images/Stay/stay.mov',
+    year:   '2026',
+    medium: 'Mixed Media',
+    dims:   '62 × 38 × 36 in',
+    desc:   'To figure out the balance between living, dying, life, death, and everything in between. As people with a conscience, we tend to be hypercritical of how we tread the waves in the lives of everyone around us. Too much, and the scale tips, and too little, well, nothing moves. I wanted to explore the feeling of contentment, but also of stagnation, in our everyday lives. Sometimes, the wave of discernment hits me, and I simply do not want to pursue the things I once dreamed of. The chair\'s overall utility is also inspired by a hammock; the external springs at each end, along with the hinge in the middle, create the illusion of floating atop it. This emulates the feeling of suspension and losing control, something I think we should all experience a bit more to actually be in touch with reality. The inner lacings of the chair, such as the cushion and the casing, were heavily inspired by my grandma\'s medicine pill.',
+    related: [
+      { src: 'images/Stay/bagpiper-337.jpg', alt: 'Stay' },
+      { src: 'images/Stay/bagpiper-338.jpg', alt: 'Stay' },
+      { src: 'images/Stay/bagpiper-339.jpg', alt: 'Stay' },
+      { src: 'images/Stay/bagpiper-340.jpg', alt: 'Stay' },
+      { src: 'images/Stay/bagpiper-341.jpg', alt: 'Stay' },
+      { src: 'images/Stay/bagpiper-342.jpg', alt: 'Stay' },
+      { src: 'images/Stay/bagpiper-343.jpg', alt: 'Stay' },
+      { src: 'images/Stay/bagpiper-344.jpg', alt: 'Stay' },
+      { src: 'images/Stay/bagpiper-345.jpg', alt: 'Stay' },
+      { src: 'images/Stay/bagpiper-346.jpg', alt: 'Stay' },
+      { src: 'images/Stay/bagpiper-347.jpg', alt: 'Stay' },
+      { src: 'images/Stay/bagpiper-348.jpg', alt: 'Stay' },
+      { src: 'images/Stay/bagpiper-349.jpg', alt: 'Stay' },
+      { src: 'images/Stay/bagpiper-350.jpg', alt: 'Stay' },
+      { src: 'images/Stay/bagpiper-351.jpg', alt: 'Stay' },
+      { src: 'images/Stay/bagpiper-352.jpg', alt: 'Stay' },
+      { src: 'images/Stay/bagpiper-353.jpg', alt: 'Stay' }
+    ]
+  },
+  {
+    title:  'The Way Forward',
+    image:  'images/The Way Forward.jpg',
+    video:  'images/The Way Forward/C0177.mp4',
+    year:   '2026',
+    medium: 'Mixed Media',
+    dims:   '16 × 16 × 15 in',
+    desc:   'We focus a lot of our lives on pacing forward, yet we end up stagnant, bewildered by what is around us. I wanted to take a moment to rejoice and think about our own nature as well as the nature all around us. Mountains and the lake that surrounds our consciousness all lead to ultimate choices between our mind, soul, body, and vision (eye). What we see can be conceived as a primary understanding of the world, as we tend to believe. The arrows atop each mountain, controlled by yourself (who act as fate-controller), propel the gears that move the arrows that shape your own destiny. Each time you spin the lever, the arrows will line up at least three times in one direction out of ten rotations. Yet you seem to never decide which way they could land on, as life slowly moves away from you; what you decide on may not be the "correct way". In this instance, you become the tailwind that controls your destiny, the hand that is able to stir the wind into a direction you perceive. Through your eyes, you lead the right way (green arrows) into your soul. Through your soul, you then purge the mind and then your body.\n\nThrough all the wind and senseless direction, I strive to find the way forward because we need to keep moving.',
+    related: [
+      { src: 'images/The Way Forward/DSC01917.jpg', alt: 'The Way Forward' },
+      { src: 'images/The Way Forward/DSC01924.jpg', alt: 'The Way Forward' },
+      { src: 'images/The Way Forward/DSC01930.jpg', alt: 'The Way Forward' },
+      { src: 'images/The Way Forward/DSC01931.jpg', alt: 'The Way Forward' },
+      { src: 'images/The Way Forward/DSC01932.jpg', alt: 'The Way Forward' },
+      { src: 'images/The Way Forward/DSC01933.jpg', alt: 'The Way Forward' },
+      { src: 'images/The Way Forward/DSC01941.jpg', alt: 'The Way Forward' },
+      { src: 'images/The Way Forward/DSC01942.jpg', alt: 'The Way Forward' },
+      { src: 'images/The Way Forward/DSC01943.jpg', alt: 'The Way Forward' },
+      { src: 'images/The Way Forward/DSC01945.jpg', alt: 'The Way Forward' },
+      { src: 'images/The Way Forward/DSC01946.jpg', alt: 'The Way Forward' },
+      { src: 'images/The Way Forward/DSC01947.jpg', alt: 'The Way Forward' }
+    ]
+  }
+];
+
+// ==========================================================================
+// NAVIGATION
+// ==========================================================================
+let cur = 'home';
+
+function go(id) {
+  closeProj(true); // close detail if open, instantly
+
+  const prev = document.getElementById('v-' + cur);
+  const next = document.getElementById('v-' + id);
+  if (!next) return;
+
+  prev.classList.remove('on');
+  next.classList.add('on', 'fi');
+  next.addEventListener('animationend', () => next.classList.remove('fi'), { once: true });
+
+  cur = id;
+
+  document.body.classList.toggle('is-home', id === 'home');
+  document.getElementById('nav').style.display = id === 'home' ? 'none' : 'flex';
+
+  document.querySelectorAll('.n-links button').forEach(b =>
+    b.classList.toggle('on', b.dataset.p === id)
+  );
+
+  window.scrollTo(0, 0);
+}
+
+// ==========================================================================
+// MOBILE MENU
+// ==========================================================================
+const burger = document.getElementById('burger');
+const mob    = document.getElementById('mob');
+let mOpen    = false;
+
+burger.addEventListener('click', () => {
+  mOpen = !mOpen;
+  burger.classList.toggle('open', mOpen);
+  mob.classList.toggle('open', mOpen);
+  burger.setAttribute('aria-expanded', mOpen);
+});
+
+function closeMenu() {
+  mOpen = false;
+  burger.classList.remove('open');
+  mob.classList.remove('open');
+  burger.setAttribute('aria-expanded', false);
+}
+
+// ==========================================================================
+// PROJECT DETAIL
+// ==========================================================================
+function openProj(i) {
+  const p = PROJECTS[i];
+  if (!p) return;
+
+  // Populate fields
+  document.getElementById('pd-crumb').textContent = p.title;
+  document.getElementById('pd-title').textContent = p.title;
+  document.getElementById('pd-year').textContent  = p.year;
+  document.getElementById('pd-med').textContent   = p.medium;
+  document.getElementById('pd-dim').textContent   = p.dims;
+  const descEl = document.getElementById('pd-desc');
+  descEl.innerHTML = p.desc.split('\n\n').map(para => '<p>' + para + '</p>').join('');
+
+  const img = document.getElementById('pd-img');
+  const vid = document.getElementById('pd-vid');
+  const wrap = document.getElementById('pd-img-wrap');
+
+  if (p.video) {
+    // Show video, hide image
+    img.style.display = 'none';
+    vid.style.display = 'block';
+    vid.src = p.video;
+    vid.muted = true;
+    vid.load();
+    vid.play();
+    wrap.onclick = null;
+    wrap.style.cursor = 'default';
+    const hint = document.getElementById('pd-vid-hint');
+    hint.style.display = 'block';
+    hint.textContent = 'Click for sound';
+    vid.onclick = function() {
+      vid.muted = !vid.muted;
+      hint.textContent = vid.muted ? 'Click for sound' : 'Click to mute';
+    };
+  } else {
+    // Show image, hide video
+    vid.pause();
+    vid.src = '';
+    vid.style.display = 'none';
+    img.style.display = 'block';
+    img.src = p.image;
+    img.alt = p.title;
+    wrap.onclick = function(){ openLB(img.src, img.alt); };
+    wrap.style.cursor = 'pointer';
+  }
+
+  // Related images — hide entirely for Being, show for all others
+  const relSection = document.getElementById('pd-rel');
+  const grid       = document.getElementById('pd-rel-grid');
+  const emptyNote  = document.getElementById('pd-rel-empty');
+  grid.innerHTML   = '';
+
+  if (p.title === 'Being') {
+    relSection.style.display = 'none';
+  } else {
+    relSection.style.display = '';
+    const hasRelated = p.related && p.related.length > 0;
+    if (hasRelated) {
+      p.related.forEach(r => {
+        const el   = document.createElement('img');
+        el.src     = r.src;
+        el.alt     = r.alt || '';
+        el.loading = 'lazy';
+        el.onclick = () => openLB(r.src, r.alt || '');
+        grid.appendChild(el);
+      });
+      emptyNote.style.display = 'none';
+    } else {
+      emptyNote.style.display = 'block';
+    }
+  }
+
+  // Show overlay
+  const detail = document.getElementById('pd');
+  detail.classList.add('show');
+  detail.scrollTop = 0;
+
+  // Double rAF: ensures display:block is rendered before opacity animates
+  requestAnimationFrame(() => requestAnimationFrame(() => detail.classList.add('in')));
+
+  document.body.style.overflow = 'hidden';
+}
+
+function closeProj(instant) {
+  const detail = document.getElementById('pd');
+  if (!detail.classList.contains('show')) return;
+
+  // Stop video if playing
+  const vid = document.getElementById('pd-vid');
+  vid.pause(); vid.src = '';
+  document.getElementById('pd-vid-hint').style.display = 'none';
+
+  detail.classList.remove('in');
+
+  const done = () => {
+    detail.classList.remove('show');
+    document.body.style.overflow = '';
+  };
+
+  instant ? done() : setTimeout(done, 200);
+}
+
+// ==========================================================================
+// LIGHTBOX
+// ==========================================================================
+function openLB(src, alt) {
+  const lb  = document.getElementById('lb');
+  const img = document.getElementById('lb-img');
+  img.src = src;
+  img.alt = alt || '';
+  lb.classList.add('show');
+  requestAnimationFrame(() => requestAnimationFrame(() => lb.classList.add('in')));
+}
+
+function closeLB() {
+  const lb = document.getElementById('lb');
+  lb.classList.remove('in');
+  setTimeout(() => lb.classList.remove('show'), 200);
+}
+
+function lbOut(e) {
+  if (e.target === document.getElementById('lb')) closeLB();
+}
+
+// ==========================================================================
+// KEYBOARD SHORTCUTS
+// ==========================================================================
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const lb = document.getElementById('lb');
+  if (lb.classList.contains('show')) { closeLB(); return; }
+  const pd = document.getElementById('pd');
+  if (pd.classList.contains('show')) closeProj();
+});
+
+// Enter key activates role="button" elements
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const t = e.target;
+  if (t.getAttribute('role') === 'button' && typeof t.onclick === 'function') t.click();
+});
+
+// ==========================================================================
+// HEADSHOT STRIP — exponentially scaling repeating row
+// Center image is smallest; each step outward multiplies width by FACTOR.
+// Adds images until cumulative half-width exceeds half the viewport width.
+// ==========================================================================
+(function(){
+  const BASE   = 72;   // px width of center image
+  const FACTOR = 1.55; // exponential growth per step outward
+
+  function buildStrip(){
+    const row = document.getElementById('hs-row');
+    if(!row) return;
+    row.innerHTML = '';
+
+    const vw = window.innerWidth;
+    const half = vw / 2;
+
+    // Build right half: collect [width, ...] stepping outward until we exceed half
+    const steps = [];
+    let cumulative = BASE / 2; // center image contributes half its width to the right
+    let w = BASE;
+    steps.push(w);             // center
+    while(cumulative < half){
+      w = Math.round(w * FACTOR);
+      steps.push(w);
+      cumulative += w;
+    }
+
+    // steps[0] = center, steps[1..] = progressively larger outward
+    // Mirror: left side is steps reversed (excluding center), then center, then right side
+    const left  = steps.slice(1).reverse(); // largest → smallest, ending just left of center
+    const right = steps.slice(1);           // smallest → largest, starting just right of center
+    const all   = [...left, steps[0], ...right];
+
+    all.forEach(function(px){
+      const img = document.createElement('img');
+      img.src     = 'images/headshot.jpg';
+      img.alt     = 'Henry Wang';
+      img.loading = 'eager';
+      img.style.width = px + 'px';
+      row.appendChild(img);
+    });
+  }
+
+  buildStrip();
+  let _rt;
+  window.addEventListener('resize', function(){
+    clearTimeout(_rt);
+    _rt = setTimeout(buildStrip, 120);
+  });
+})();
+
+// ==========================================================================
+// RECENT WORKS — crossfade image on hover, open project on click
+// ==========================================================================
+(function(){
+  const imgA = document.getElementById('rw-img-a');
+  const imgB = document.getElementById('rw-img-b');
+  let active = 'a';
+
+  document.querySelectorAll('.rw-item').forEach(function(item){
+    item.addEventListener('mouseenter', function(){
+      const src = item.dataset.img;
+      if(active === 'a'){
+        imgB.src = src;
+        imgB.classList.add('rw-img--active');
+        imgA.classList.remove('rw-img--active');
+        active = 'b';
+      } else {
+        imgA.src = src;
+        imgA.classList.add('rw-img--active');
+        imgB.classList.remove('rw-img--active');
+        active = 'a';
+      }
+    });
+    item.addEventListener('click', function(){
+      openProj(parseInt(item.dataset.i));
+    });
+  });
+})();
+
+// ==========================================================================
+// STATEMENT STRETCH — physically scale hm-stmt to fill container width
+// ==========================================================================
+(function(){
+  const stmt = document.querySelector('.hm-stmt');
+  function stretchStmt(){
+    stmt.style.transform = 'none';
+    const natural   = stmt.getBoundingClientRect().width;
+    const parent    = stmt.parentElement;
+    const style     = getComputedStyle(parent);
+    const innerW    = parent.getBoundingClientRect().width
+                      - parseFloat(style.paddingLeft)
+                      - parseFloat(style.paddingRight);
+    stmt.style.transform = 'scaleX(' + (innerW * 0.45 / natural).toFixed(4) + ')';
+  }
+  stretchStmt();
+  let _rs;
+  window.addEventListener('resize', function(){ clearTimeout(_rs); _rs = setTimeout(stretchStmt, 80); });
+})();
+
+// ==========================================================================
+// CURSOR FOLLOWER — headshot image lags behind mouse (lerp)
+// ==========================================================================
+(function(){
+  const el  = document.getElementById('cursor-follower');
+  const EASE = 0.09;   // 0 = never moves, 1 = instant — lower = more lag
+  let mx = -300, my = -300;
+  let cx = -300, cy = -300;
+  let visible = false;
+
+  document.addEventListener('mousemove', function(e){
+    mx = e.clientX;
+    my = e.clientY;
+    if(!visible){
+      cx = mx; cy = my; // snap on first move so it doesn't slide in from corner
+      visible = true;
+      el.style.opacity = '1';
+    }
+  });
+  document.addEventListener('mouseleave', function(){
+    visible = false;
+    el.style.opacity = '0';
+  });
+
+  (function tick(){
+    cx += (mx - cx) * EASE;
+    cy += (my - cy) * EASE;
+    el.style.left = cx.toFixed(1) + 'px';
+    el.style.top  = cy.toFixed(1) + 'px';
+    requestAnimationFrame(tick);
+  })();
+})();
+
+// ==========================================================================
+// INIT
+// ==========================================================================
+document.querySelector('[data-p="home"]').classList.add('on');
+document.body.classList.add('is-home');
+document.getElementById('nav').style.display = 'none';
+
+</script>
+
+<!-- Cursor follower -->
+<div id="cursor-follower" aria-hidden="true">
+  <img src="images/headshot.jpg" alt="">
+</div>
+
+</body>
+</html>
