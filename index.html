@@ -1348,6 +1348,7 @@ body.is-home #nav{display:none !important}
     <div class="pd-img-wrap" id="pd-img-wrap">
       <img id="pd-img" src="" alt="">
       <video id="pd-vid" src="" autoplay loop muted playsinline style="display:none;width:100%;height:auto;cursor:pointer;" title="Click to toggle sound"></video>
+      <iframe id="pd-yt" src="" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen style="display:none;width:100%;aspect-ratio:16/9;"></iframe>
       <p id="pd-vid-hint" style="display:none;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:400;font-size:9px;letter-spacing:.08em;text-transform:uppercase;opacity:.4;margin-top:8px;">Click for sound</p>
     </div>
 
@@ -1423,7 +1424,7 @@ const PROJECTS = [
   {
     title:  'Being',
     image:  'images/Being.jpg',
-    video:  'images/Being/Being.mp4',
+    youtube: 'XEqgdGbxZxw',
     year:   '2026',
     medium: 'Mixed Media',
     dims:   '1920 × 1080 px',
@@ -1672,19 +1673,26 @@ function openProj(i) {
 
   const img = document.getElementById('pd-img');
   const vid = document.getElementById('pd-vid');
+  const yt  = document.getElementById('pd-yt');
   const wrap = document.getElementById('pd-img-wrap');
+  const hint = document.getElementById('pd-vid-hint');
 
-  if (p.video) {
-    // Show video, hide image
-    img.style.display = 'none';
+  // Reset all media
+  vid.pause(); vid.src = ''; vid.style.display = 'none';
+  yt.src = ''; yt.style.display = 'none';
+  img.style.display = 'none';
+  hint.style.display = 'none';
+  wrap.onclick = null; wrap.style.cursor = 'default';
+
+  if (p.youtube) {
+    yt.src = 'https://www.youtube.com/embed/' + p.youtube + '?autoplay=1&mute=1&loop=1&playlist=' + p.youtube;
+    yt.style.display = 'block';
+  } else if (p.video) {
     vid.style.display = 'block';
     vid.src = p.video;
     vid.muted = true;
     vid.load();
     vid.play();
-    wrap.onclick = null;
-    wrap.style.cursor = 'default';
-    const hint = document.getElementById('pd-vid-hint');
     hint.style.display = 'block';
     hint.textContent = 'Click for sound';
     vid.onclick = function() {
@@ -1692,10 +1700,6 @@ function openProj(i) {
       hint.textContent = vid.muted ? 'Click for sound' : 'Click to mute';
     };
   } else {
-    // Show image, hide video
-    vid.pause();
-    vid.src = '';
-    vid.style.display = 'none';
     img.style.display = 'block';
     img.src = p.image;
     img.alt = p.title;
