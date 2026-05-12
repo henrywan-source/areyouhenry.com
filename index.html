@@ -773,19 +773,29 @@ body.is-home #nav{display:none !important}
   }
   .hm-name-mob{
     display:block;
+    position:relative;
+    overflow:hidden;
     height:clamp(48px,16vw,76px);
-    background:url('font/henry_wang.png') no-repeat;
-    background-size:auto 100%;
     mix-blend-mode:multiply;
     opacity:.8;
   }
+  .hm-name-mob img{
+    position:absolute;
+    top:0;
+    height:100%;
+    width:auto;
+  }
   .hm-crop-henry{
-    width:60vw;
-    background-position:left center;
+    width:38vw;
+  }
+  .hm-crop-henry img{
+    left:0;
   }
   .hm-crop-wang{
-    width:44vw;
-    background-position:right center;
+    width:26vw;
+  }
+  .hm-crop-wang img{
+    left:-40vw;
   }
   #hs-row img{
     transform:none;
@@ -872,7 +882,7 @@ body.is-home #nav{display:none !important}
 
   <div class="hm-top">
     <!-- EDIT: Artist name — large hero text -->
-    <h1 class="hm-name"><img src="images/henry_wang.png" alt="Henry Wang" class="hm-name-img"><span class="hm-name-mob hm-crop-henry"></span><span class="hm-name-mob hm-crop-wang"></span></h1>
+    <h1 class="hm-name"><img src="images/henry_wang.png" alt="Henry Wang" class="hm-name-img"><span class="hm-name-mob hm-crop-henry"><img src="font/henry_wang.png" alt="Henry"></span><span class="hm-name-mob hm-crop-wang"><img src="font/henry_wang.png" alt="Wang"></span></h1>
     <!-- EDIT: One-line artist statement -->
     <img class="hm-stmt" src="images/subtitle.png" alt="The un-niche and inconsistent">
   </div>
