@@ -6,7 +6,6 @@
 <title>Henry Wang</title>
 <style>
 @import url('https://fonts.cdnfonts.com/css/akira-expanded');
-@font-face{font-family:'Sriracha';src:url('font/Sriracha-Regular.ttf') format('truetype');font-weight:400;font-style:normal;}
 
 /* ==========================================================================
    RESET
@@ -771,14 +770,16 @@ body.is-home #nav{display:none !important}
     line-height:.93;
   }
   .hm-name-mob{
-    display:block;
-    font-family:'Sriracha',sans-serif;
-    font-size:clamp(52px,26vw,96px);
-    font-weight:400;
-    letter-spacing:.02em;
-    text-transform:none;
+    display:flex;
+    flex-direction:row;
+    align-items:flex-end;
     opacity:.6;
     animation:hw-shine 3.72s ease-in-out infinite;
+  }
+  .hm-letter{
+    height:clamp(50px,14vw,72px);
+    width:auto;
+    display:block;
   }
   #hs-row img{
     transform:none;
@@ -864,7 +865,7 @@ body.is-home #nav{display:none !important}
 
   <div class="hm-top">
     <!-- EDIT: Artist name — large hero text -->
-    <h1 class="hm-name"><img src="images/henry_wang.png" alt="Henry Wang" class="hm-name-img"><span class="hm-name-mob">Henry</span><span class="hm-name-mob">Wang</span></h1>
+    <h1 class="hm-name"><img src="images/henry_wang.png" alt="Henry Wang" class="hm-name-img"><span class="hm-name-mob"><img src="font/letters/H.png" class="hm-letter" alt=""><img src="font/letters/e.png" class="hm-letter" alt=""><img src="font/letters/n.png" class="hm-letter" alt=""><img src="font/letters/r.png" class="hm-letter" alt=""><img src="font/letters/y.png" class="hm-letter" alt=""></span><span class="hm-name-mob"><img src="font/letters/W.png" class="hm-letter" alt=""><img src="font/letters/a.png" class="hm-letter" alt=""><img src="font/letters/n.png" class="hm-letter" alt=""><img src="font/letters/g.png" class="hm-letter" alt=""></span></h1>
     <!-- EDIT: One-line artist statement -->
     <img class="hm-stmt" src="images/subtitle.png" alt="The un-niche and inconsistent">
   </div>
