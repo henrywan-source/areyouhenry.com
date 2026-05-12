@@ -758,6 +758,36 @@ body.is-home #nav{display:none !important}
 /* ==========================================================================
    RESPONSIVE
 ========================================================================== */
+.hm-name-mob{display:none}
+
+@media(max-width:768px){
+  .hm-name-img{display:none}
+  .hm-name{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    line-height:.93;
+  }
+  .hm-name-mob{
+    display:block;
+    font-family:'Akira Expanded',Helvetica,Arial,sans-serif;
+    font-size:clamp(44px,22vw,80px);
+    font-weight:700;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    opacity:.6;
+    animation:hw-shine 3.72s ease-in-out infinite;
+  }
+  #hs-row img{
+    transform:none;
+    object-fit:cover;
+    object-position:top center;
+  }
+  .cv-wrap{width:100%}
+  .cv-oni{display:none}
+}
+
 @media(max-width:860px){
   /* gallery is already single-column sections — no column change needed */
   .ps-head{grid-template-columns:40px 1fr auto}
@@ -833,7 +863,7 @@ body.is-home #nav{display:none !important}
 
   <div class="hm-top">
     <!-- EDIT: Artist name — large hero text -->
-    <h1 class="hm-name"><img src="images/henry_wang.png" alt="Henry Wang" class="hm-name-img"></h1>
+    <h1 class="hm-name"><img src="images/henry_wang.png" alt="Henry Wang" class="hm-name-img"><span class="hm-name-mob">HENRY</span><span class="hm-name-mob">WANG</span></h1>
     <!-- EDIT: One-line artist statement -->
     <img class="hm-stmt" src="images/subtitle.png" alt="The un-niche and inconsistent">
   </div>
