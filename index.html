@@ -6,6 +6,7 @@
 <title>Henry Wang</title>
 <style>
 @import url('https://fonts.cdnfonts.com/css/akira-expanded');
+@font-face{font-family:'Sriracha';src:url('font/Sriracha-Regular.ttf') format('truetype');font-weight:400;font-style:normal;}
 
 /* ==========================================================================
    RESET
@@ -771,11 +772,11 @@ body.is-home #nav{display:none !important}
   }
   .hm-name-mob{
     display:block;
-    font-family:'Akira Expanded',Helvetica,Arial,sans-serif;
-    font-size:clamp(44px,22vw,80px);
-    font-weight:700;
-    letter-spacing:.04em;
-    text-transform:uppercase;
+    font-family:'Sriracha',cursive;
+    font-size:clamp(52px,26vw,96px);
+    font-weight:400;
+    letter-spacing:.02em;
+    text-transform:none;
     opacity:.6;
     animation:hw-shine 3.72s ease-in-out infinite;
   }
@@ -863,7 +864,7 @@ body.is-home #nav{display:none !important}
 
   <div class="hm-top">
     <!-- EDIT: Artist name — large hero text -->
-    <h1 class="hm-name"><img src="images/henry_wang.png" alt="Henry Wang" class="hm-name-img"><span class="hm-name-mob">HENRY</span><span class="hm-name-mob">WANG</span></h1>
+    <h1 class="hm-name"><img src="images/henry_wang.png" alt="Henry Wang" class="hm-name-img"><span class="hm-name-mob">Henry</span><span class="hm-name-mob">Wang</span></h1>
     <!-- EDIT: One-line artist statement -->
     <img class="hm-stmt" src="images/subtitle.png" alt="The un-niche and inconsistent">
   </div>
@@ -1923,14 +1924,25 @@ document.addEventListener('keydown', e => {
     buttons.forEach(function(btn){ btn.classList.toggle('lit', hit); });
   }
 
+  function fitStrip(){
+    const row = document.getElementById('hs-row');
+    if(!row || window.innerWidth > 768) return;
+    const rw = row.scrollWidth;
+    const vw = window.innerWidth;
+    if(rw > vw) row.style.transform = 'scaleX(' + (vw / rw) + ')';
+    else row.style.transform = '';
+    row.style.transformOrigin = 'center bottom';
+  }
+
   buildStrip();
   buildBgRows();
+  fitStrip();
   checkNavLit();
   window.addEventListener('scroll', checkNavLit, {passive:true});
   let _rt;
   window.addEventListener('resize', function(){
     clearTimeout(_rt);
-    _rt = setTimeout(function(){ buildStrip(); buildBgRows(); checkNavLit(); }, 120);
+    _rt = setTimeout(function(){ buildStrip(); buildBgRows(); fitStrip(); checkNavLit(); }, 120);
   });
 })();
 
