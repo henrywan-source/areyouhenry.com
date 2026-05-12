@@ -768,18 +768,21 @@ body.is-home #nav{display:none !important}
     flex-direction:column;
     align-items:center;
     line-height:.93;
+    background:transparent;
+    border:none;
   }
   .hm-name-mob{
     display:flex;
     flex-direction:row;
     align-items:flex-end;
-    opacity:.6;
+    opacity:.4;
     animation:hw-shine 3.72s ease-in-out infinite;
   }
   .hm-letter{
-    height:clamp(50px,14vw,72px);
+    height:clamp(64px,18vw,90px);
     width:auto;
     display:block;
+    filter:url(#letter-filter);
   }
   #hs-row img{
     transform:none;
@@ -788,6 +791,7 @@ body.is-home #nav{display:none !important}
   }
   .cv-wrap{width:100%}
   .cv-oni{display:none}
+  body.is-home #nav{display:none!important}
 }
 
 @media(max-width:860px){
@@ -2052,5 +2056,17 @@ document.getElementById('nav').style.display = 'none';
   <img src="images/headshot.jpg" alt="">
 </div>
 
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none;position:absolute">
+  <defs>
+    <filter id="letter-filter" color-interpolation-filters="sRGB">
+      <feComponentTransfer>
+        <feFuncR type="linear" slope="100" intercept="-49"/>
+        <feFuncG type="linear" slope="100" intercept="-49"/>
+        <feFuncB type="linear" slope="100" intercept="-49"/>
+      </feComponentTransfer>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.82  0 0 0 0 0.08  0 0 0 0 0.08  -1 0 0 0 1"/>
+    </filter>
+  </defs>
+</svg>
 </body>
 </html>
