@@ -1878,15 +1878,48 @@ document.querySelector('[data-p="home"]').classList.add('on');
 document.body.classList.add('is-home');
 document.getElementById('nav').style.display = 'none';
 
-// iOS Safari sometimes needs muted set as a JS property (not just an
-// attribute) and an explicit play() call before it'll honor autoplay
+// iOS Safari sometimes needs muted/playsInline set as JS properties
+// (not just attributes) before it'll honor autoplay, and can silently
+// swallow the very first play() attempt if it races page setup — so
+// retry on every lifecycle signal that could plausibly unblock it,
+// not just once on load.
 (function(){
   const bgVideo = document.querySelector('.hm-bg-video');
   if(!bgVideo) return;
   bgVideo.muted = true;
-  const tryPlay = () => bgVideo.play().catch(function(){});
+  bgVideo.playsInline = true;
+  bgVideo.defaultMuted = true;
+
+  let attempts = 0;
+  const tryPlay = () => {
+    if(!bgVideo.paused) return;
+    attempts++;
+    bgVideo.play().catch(function(){});
+  };
+
   tryPlay();
-  document.addEventListener('touchstart', tryPlay, { once:true, passive:true });
+  document.addEventListener('DOMContentLoaded', tryPlay);
+  window.addEventListener('load', tryPlay);
+  window.addEventListener('pageshow', tryPlay);           // back-forward cache restores
+  document.addEventListener('visibilitychange', function(){
+    if(!document.hidden) tryPlay();
+  });
+  bgVideo.addEventListener('canplay', tryPlay);
+  bgVideo.addEventListener('loadeddata', tryPlay);
+  bgVideo.addEventListener('pause', function(){
+    if(attempts < 20) tryPlay();                          // guard against an unexpected external pause
+  });
+  ['touchstart','touchend','pointerdown','click','scroll'].forEach(function(evt){
+    document.addEventListener(evt, tryPlay, { passive:true });
+  });
+
+  // last-resort short poll in case every event above fires before the
+  // browser is actually willing to play (e.g. slow network on cellular)
+  const poll = setInterval(function(){
+    attempts++;
+    tryPlay();
+    if(!bgVideo.paused || attempts > 20) clearInterval(poll);
+  }, 500);
 })();
 
 </script>
