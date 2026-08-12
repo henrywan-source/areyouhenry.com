@@ -75,40 +75,30 @@ img{display:block;max-width:100%}
 
 /* Hide entire nav bar on home page */
 body.is-home #nav{display:none !important}
+/* Hide footer on home page — the video hero is the only content */
+body.is-home .site-footer{display:none !important}
 
 /* Inline home nav */
 .hm-nav{
-  display:flex;flex-direction:column;align-items:center;gap:16px;
+  display:flex;flex-direction:column;align-items:flex-start;gap:16px;
   list-style:none;
   position:fixed;
   top:calc(var(--nav) + clamp(56px,10vh,128px) + 234px);
-  left:50%;
-  transform:translateX(-50%);
+  left:var(--pad);
   z-index:10;
 }
 .hm-nav button{
   background:none;border:none;
   border-bottom:1px solid transparent;
-  font-size:20px;letter-spacing:.33em;text-transform:uppercase;color:#000;
+  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  font-size:20px;letter-spacing:.297em;text-transform:uppercase;color:#fff;
+  text-shadow:0 1px 3px rgba(0,0,0,.6),0 2px 10px rgba(0,0,0,.4);
   padding:2px 0;
   cursor:pointer;
   transition:opacity var(--t),border-color var(--t),text-shadow .35s ease;
 }
 .hm-nav button:hover{opacity:.42}
-@keyframes nav-shine{
-  0%,100%{text-shadow:
-    -2px 0 0 rgba(255,255,255,.9), 2px 0 0 rgba(255,255,255,.9),
-    0 -2px 0 rgba(255,255,255,.9), 0 2px 0 rgba(255,255,255,.9),
-    0 0 12px rgba(255,255,255,.7), 0 0 24px rgba(255,255,255,.4);}
-  50%{text-shadow:
-    -2px 0 0 #fff, 2px 0 0 #fff,
-    0 -2px 0 #fff, 0 2px 0 #fff,
-    0 0 20px rgba(255,255,255,1), 0 0 44px rgba(255,255,255,.8), 0 0 72px rgba(255,255,255,.35);}
-}
-.hm-nav button.lit{
-  animation:nav-shine 3.72s ease-in-out infinite;
-}
-.hm-nav button.on{border-bottom-color:#000}
+.hm-nav button.on{border-bottom-color:#fff}
 
 /* Burger — shown only on mobile */
 .burger{
@@ -161,7 +151,7 @@ body.is-home #nav{display:none !important}
 
 /* ==========================================================================
    HOME
-   EDIT: .hm-name text, .hm-stmt text, featured image srcs + onclick index
+   EDIT: .hm-stmt text, featured image srcs + onclick index
 ========================================================================== */
 
 /* Hero band: name + statement centered */
@@ -173,45 +163,6 @@ body.is-home #nav{display:none !important}
   gap:16px;
   padding:clamp(56px,10vh,128px) var(--pad) 44px;
 }
-.hm-name{
-  font-size:clamp(52px,9.5vw,112px);
-  font-weight:700;
-  letter-spacing:.04em;
-  line-height:.93;
-  text-transform:uppercase;
-  position:fixed;
-  top:calc(var(--nav) + clamp(56px,10vh,128px));
-  left:50%;
-  width:max-content;
-  transform:translateX(-50%);
-  z-index:1;
-  pointer-events:none;
-}
-@keyframes hw-shine{
-  0%,100%{filter:
-    drop-shadow(-2px 0 0 rgba(210,20,20,.9))
-    drop-shadow(2px 0 0 rgba(210,20,20,.9))
-    drop-shadow(0 -2px 0 rgba(210,20,20,.9))
-    drop-shadow(0 2px 0 rgba(210,20,20,.9))
-    drop-shadow(0 0 5px rgba(210,20,20,.7))
-    drop-shadow(0 0 9px rgba(210,20,20,.4));}
-  50%{filter:
-    drop-shadow(-2px 0 0 #d21414)
-    drop-shadow(2px 0 0 #d21414)
-    drop-shadow(0 -2px 0 #d21414)
-    drop-shadow(0 2px 0 #d21414)
-    drop-shadow(0 0 7px rgba(210,20,20,1))
-    drop-shadow(0 0 16px rgba(210,20,20,.8))
-    drop-shadow(0 0 26px rgba(210,20,20,.35));}
-}
-.hm-name-img{
-  display:block;
-  width:clamp(1176px,calc(73.92vw + 336px),1848px);
-  height:auto;
-  margin:0 auto;
-  opacity:0.6;
-  animation:hw-shine 3.72s ease-in-out infinite;
-}
 .hm-stmt{
   display:block;
   width:clamp(300px,50vw,1100px);
@@ -220,56 +171,35 @@ body.is-home #nav{display:none !important}
   position:relative;
   top:-90px;
   margin:0 auto;
+  filter:invert(1);
 }
 
-/* Headshot strip — exponentially scaling repeating row */
-#v-home{position:relative;}
-#hs-bg{
+/* Home background + centered headshot */
+#v-home{
+  position:relative;
+  overflow:hidden;
+  min-height:100vh;
+  min-height:100dvh;
+}
+.hm-bg-video{
   position:absolute;
   inset:0;
-  z-index:0;
-  opacity:0.3;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:-1;
   pointer-events:none;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-around;
 }
-.hs-bg-row{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  width:100%;
-}
-.hs-bg-row img{
-  display:block;
+.hm-headshot{
+  position:fixed;
+  width:clamp(120px,14vw,200px);
   height:auto;
-  flex-shrink:0;
-}
-.hs-strip{
-  width:100%;
-  overflow-x:clip;   /* clip horizontal overflow only — lets tall edge images grow upward */
-  overflow-y:visible;
-  display:flex;
-  align-items:flex-end;
-  padding-bottom:0;
-}
-#hs-row{
-  display:flex;
-  align-items:flex-end;
-  gap:0;
-  width:100%;
-  justify-content:center;
-}
-#hs-row img{
-  display:block;
-  height:auto;
-  object-fit:contain;
-  flex-shrink:0;
-  transform:scaleY(1.25);
-  transform-origin:bottom center;
+  z-index:2;
+  pointer-events:none;
   mix-blend-mode:multiply;
 }
+.hm-headshot--left{left:clamp(12px,4vw,64px)}
+.hm-headshot--right{right:clamp(12px,4vw,64px)}
 .hm-cap{
   display:flex;justify-content:space-between;align-items:baseline;
   width:100%;
@@ -758,50 +688,7 @@ body.is-home #nav{display:none !important}
 /* ==========================================================================
    RESPONSIVE
 ========================================================================== */
-.hm-name-mob{display:none}
-
 @media(max-width:768px){
-  .hm-name-img{display:none}
-  .hm-name{
-    width:100%;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    line-height:.93;
-    background:transparent;
-    border:none;
-  }
-  .hm-name-mob{
-    display:block;
-    position:relative;
-    overflow:hidden;
-    height:clamp(128px,calc(16vw + 80px),156px);
-    mix-blend-mode:multiply;
-    opacity:.8;
-  }
-  .hm-name-mob img{
-    position:absolute;
-    top:0;
-    height:100%;
-    width:auto;
-  }
-  .hm-crop-henry{
-    width:82vw;
-  }
-  .hm-crop-henry img{
-    left:0;
-  }
-  .hm-crop-wang{
-    width:57vw;
-  }
-  .hm-crop-wang img{
-    left:-93vw;
-  }
-  #hs-row img{
-    transform:none;
-    mix-blend-mode:multiply;
-    filter:contrast(4) grayscale(1);
-  }
   .cv-wrap{width:100%}
   .cv-oni{display:none}
   body.is-home #nav{display:none!important}
@@ -871,18 +758,14 @@ body.is-home #nav{display:none !important}
 
 <!-- ==========================================================================
      HOME
-     EDIT: .hm-name text (artist name, large)
      EDIT: .hm-stmt text (one-line statement)
      EDIT: featured cells — change onclick(N) to project index, update src/alt
 ========================================================================== -->
 <section id="v-home" class="v on" aria-label="Home">
 
-  <!-- Background headshot rows -->
-  <div id="hs-bg"></div>
+  <video class="hm-bg-video" autoplay muted loop playsinline preload="auto" src="images/title.mp4"></video>
 
   <div class="hm-top">
-    <!-- EDIT: Artist name — large hero text -->
-    <h1 class="hm-name"><img src="images/henry_wang.png" alt="Henry Wang" class="hm-name-img"><span class="hm-name-mob hm-crop-henry"><img src="font/henry_wang.png" alt="Henry"></span><span class="hm-name-mob hm-crop-wang"><img src="font/henry_wang.png" alt="Wang"></span></h1>
     <!-- EDIT: One-line artist statement -->
     <img class="hm-stmt" src="images/subtitle.png" alt="The un-niche and inconsistent">
   </div>
@@ -895,10 +778,8 @@ body.is-home #nav{display:none !important}
     <li><button onclick="go('contact')"  data-p="contact">Contact</button></li>
   </ul>
 
-  <!-- Exponentially scaling headshot strip — built by JS -->
-  <div class="hs-strip">
-    <div id="hs-row"></div>
-  </div>
+  <img class="hm-headshot hm-headshot--left" src="images/headshot.jpg" alt="Henry Wang">
+  <img class="hm-headshot hm-headshot--right" src="images/headshot.jpg" alt="Henry Wang">
 
 </section>
 
@@ -1407,6 +1288,11 @@ body.is-home #nav{display:none !important}
 
 <footer class="site-footer">© 2026 by Henry Ming Qian Wang All rights reserved.</footer>
 
+<!-- Cursor follower -->
+<div id="cursor-follower" aria-hidden="true">
+  <img src="images/headshot.jpg" alt="">
+</div>
+
 <!-- ==========================================================================
      PROJECT DETAIL OVERLAY
      Populated dynamically by openProj() from PROJECTS[] in JS.
@@ -1881,114 +1767,35 @@ document.addEventListener('keydown', e => {
 });
 
 // ==========================================================================
-// HEADSHOT STRIP — exponentially scaling repeating row
-// Center image is smallest; each step outward multiplies width by FACTOR.
-// Adds images until cumulative half-width exceeds half the viewport width.
+// HOME HEADSHOTS — pinned to the left/right edges, below the nav text so
+// they never overlap the hero name/statement/nav
 // ==========================================================================
 (function(){
-  const BASE   = 72;   // px width of center image
-  const FACTOR = 1.55; // exponential growth per step outward
-
-  function buildStrip(){
-    const row = document.getElementById('hs-row');
-    if(!row) return;
-    row.innerHTML = '';
-
-    const vw = window.innerWidth;
-    const half = vw / 2;
-
-    // Build right half: collect [width, ...] stepping outward until we exceed half
-    const steps = [];
-    let cumulative = BASE / 2; // center image contributes half its width to the right
-    let w = BASE;
-    steps.push(w);             // center
-    while(cumulative < half){
-      w = Math.round(w * FACTOR);
-      steps.push(w);
-      cumulative += w;
-    }
-
-    // steps[0] = center, steps[1..] = progressively larger outward
-    // Mirror: left side is steps reversed (excluding center), then center, then right side
-    const left  = steps.slice(1).reverse(); // largest → smallest, ending just left of center
-    const right = steps.slice(1);           // smallest → largest, starting just right of center
-    const all   = [...left, steps[0], ...right];
-
-    all.forEach(function(px){
-      const img = document.createElement('img');
-      img.src     = 'images/headshot.jpg';
-      img.alt     = 'Henry Wang';
-      img.loading = 'eager';
-      img.style.width = px + 'px';
-      row.appendChild(img);
-    });
-  }
-
-  function buildBgRows(){
-    const bg = document.getElementById('hs-bg');
-    if(!bg) return;
-    bg.innerHTML = '';
-    const vw = window.innerWidth;
-    const half = vw / 2;
-    for(let r = 0; r < 5; r++){
-      const row = document.createElement('div');
-      row.className = 'hs-bg-row';
-      const steps = [];
-      let cumulative = BASE / 2;
-      let w = BASE;
-      steps.push(w);
-      while(cumulative < half){
-        w = Math.round(w * FACTOR);
-        steps.push(w);
-        cumulative += w;
+  function placeHeadshot(){
+    const hsList = document.querySelectorAll('.hm-headshot');
+    const nav    = document.querySelector('.hm-nav');
+    if(!hsList.length || !nav) return;
+    const navBottom   = nav.getBoundingClientRect().bottom;
+    const gap         = 40;
+    const bottomMargin = 24;
+    const available   = window.innerHeight - navBottom - gap - bottomMargin;
+    hsList.forEach(function(hs){
+      hs.style.width = '';
+      const naturalHeight = hs.getBoundingClientRect().height;
+      const naturalWidth  = hs.getBoundingClientRect().width;
+      if(available < naturalHeight){
+        hs.style.width = Math.max(naturalWidth * (available / naturalHeight), 60) + 'px';
       }
-      const left = steps.slice(1).reverse();
-      const right = steps.slice(1);
-      [...left, steps[0], ...right].forEach(function(px){
-        const img = document.createElement('img');
-        img.src = 'images/headshot.jpg';
-        img.alt = '';
-        img.style.width = px + 'px';
-        row.appendChild(img);
-      });
-      bg.appendChild(row);
-    }
-  }
-
-  function checkNavLit(){
-    const nav     = document.querySelector('.hm-nav');
-    const buttons = document.querySelectorAll('.hm-nav button');
-    const hsImgs  = document.querySelectorAll('.hs-bg-row img');
-    if(!nav) return;
-    const nb = nav.getBoundingClientRect();
-    let hit = false;
-    hsImgs.forEach(function(img){
-      if(hit) return;
-      const r = img.getBoundingClientRect();
-      if(nb.left < r.right && nb.right > r.left && nb.top < r.bottom && nb.bottom > r.top) hit = true;
+      hs.style.top = (navBottom + gap) + 'px';
     });
-    buttons.forEach(function(btn){ btn.classList.toggle('lit', hit); });
   }
 
-  function fitStrip(){
-    const row = document.getElementById('hs-row');
-    if(!row || window.innerWidth > 768) return;
-    const rw = row.scrollWidth;
-    const vw = window.innerWidth;
-    if(rw > vw) row.style.transform = 'scaleX(' + (vw / rw) + ')';
-    else row.style.transform = '';
-    row.style.transformOrigin = 'center bottom';
-  }
-
-  buildStrip();
-  buildBgRows();
-  fitStrip();
-  checkNavLit();
-  window.addEventListener('scroll', checkNavLit, {passive:true});
+  placeHeadshot();
+  window.addEventListener('load', placeHeadshot);
   let _rt;
   window.addEventListener('resize', function(){
     clearTimeout(_rt);
-    _rt = setTimeout(function(){ buildStrip(); buildBgRows(); fitStrip(); checkNavLit(); }, 120);
+    _rt = setTimeout(placeHeadshot, 120);
   });
 })();
 
@@ -2091,11 +1898,6 @@ document.body.classList.add('is-home');
 document.getElementById('nav').style.display = 'none';
 
 </script>
-
-<!-- Cursor follower -->
-<div id="cursor-follower" aria-hidden="true">
-  <img src="images/headshot.jpg" alt="">
-</div>
 
 </body>
 </html>
