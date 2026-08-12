@@ -151,28 +151,8 @@ body.is-home .site-footer{display:none !important}
 
 /* ==========================================================================
    HOME
-   EDIT: .hm-stmt text, featured image srcs + onclick index
+   EDIT: featured image srcs + onclick index
 ========================================================================== */
-
-/* Hero band: name + statement centered */
-.hm-top{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  text-align:center;
-  gap:16px;
-  padding:clamp(56px,10vh,128px) var(--pad) 44px;
-}
-.hm-stmt{
-  display:block;
-  width:clamp(300px,50vw,1100px);
-  height:auto;
-  opacity:.8;
-  position:relative;
-  top:-90px;
-  margin:0 auto;
-  filter:invert(1);
-}
 
 /* Home background + centered headshot */
 #v-home{
@@ -698,8 +678,6 @@ body.is-home .site-footer{display:none !important}
   /* gallery is already single-column sections — no column change needed */
   .ps-head{grid-template-columns:40px 1fr auto}
   .ps-media{display:none}
-  .hm-top{grid-template-columns:1fr;gap:18px}
-  .hm-stmt{width:min(90vw,1100px)}
   .pi{grid-template-columns:40px 1fr 56px}
   .pi-m{display:none}
   .ab-grid{grid-template-columns:1fr;gap:48px}
@@ -758,17 +736,11 @@ body.is-home .site-footer{display:none !important}
 
 <!-- ==========================================================================
      HOME
-     EDIT: .hm-stmt text (one-line statement)
      EDIT: featured cells — change onclick(N) to project index, update src/alt
 ========================================================================== -->
 <section id="v-home" class="v on" aria-label="Home">
 
   <video class="hm-bg-video" autoplay muted loop playsinline preload="auto" src="images/title.mp4"></video>
-
-  <div class="hm-top">
-    <!-- EDIT: One-line artist statement -->
-    <img class="hm-stmt" src="images/subtitle.png" alt="The un-niche and inconsistent">
-  </div>
 
   <ul class="hm-nav" role="list">
     <li><button onclick="go('works')"    data-p="works">Recent Works</button></li>
