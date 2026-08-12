@@ -180,6 +180,20 @@ body.is-home .site-footer{display:none !important}
 }
 .hm-headshot--left{left:clamp(12px,4vw,64px)}
 .hm-headshot--right{right:clamp(12px,4vw,64px)}
+.hm-copyright{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:clamp(12px,2.5vh,28px);
+  z-index:2;
+  text-align:center;
+  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  font-weight:400;
+  font-size:11px;
+  letter-spacing:.04em;
+  color:#fff;
+  pointer-events:none;
+}
 .hm-cap{
   display:flex;justify-content:space-between;align-items:baseline;
   width:100%;
@@ -759,6 +773,8 @@ body.is-home .site-footer{display:none !important}
 
   <img class="hm-headshot hm-headshot--left" src="images/headshot.jpg" alt="Henry Wang">
   <img class="hm-headshot hm-headshot--right" src="images/headshot.jpg" alt="Henry Wang">
+
+  <p class="hm-copyright">Henry Wang All Rights Reserved © 2026</p>
 
 </section>
 
