@@ -1841,7 +1841,8 @@ function closePainting() {
 // ==========================================================================
 (function(){
   const el  = document.getElementById('cursor-follower');
-  if(!window.matchMedia('(hover:hover) and (pointer:fine)').matches) return; // touch devices: no real mouse to follow
+  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  if(isTouch || !window.matchMedia('(hover:hover) and (pointer:fine)').matches) return; // touch devices: no real mouse to follow
   const EASE = 0.09;   // 0 = never moves, 1 = instant — lower = more lag
   let mx = -300, my = -300;
   let cx = -300, cy = -300;
