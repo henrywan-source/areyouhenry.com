@@ -202,6 +202,13 @@ body.is-home .site-footer{display:none !important}
   transition:opacity .4s ease;
   filter:drop-shadow(0 8px 18px rgba(0,0,0,.35));
 }
+/* Touch devices have no real mouse — iOS fires a one-off synthetic
+   mousemove after a tap, which would otherwise snap this into view
+   and leave it stuck on screen. Hide it outright wherever there's
+   no fine-pointer hover input. */
+@media (hover:none), (pointer:coarse){
+  #cursor-follower{display:none !important}
+}
 #cursor-follower img{
   display:block;
   width:100%;
@@ -740,7 +747,7 @@ body.is-home .site-footer{display:none !important}
 ========================================================================== -->
 <section id="v-home" class="v on" aria-label="Home">
 
-  <video class="hm-bg-video" autoplay muted loop playsinline preload="auto" src="images/title.mp4"></video>
+  <video class="hm-bg-video" autoplay muted loop playsinline webkit-playsinline preload="auto" disablePictureInPicture disableRemotePlayback src="images/title.mp4"></video>
 
   <ul class="hm-nav" role="list">
     <li><button onclick="go('works')"    data-p="works">Recent Works</button></li>
@@ -1834,6 +1841,7 @@ function closePainting() {
 // ==========================================================================
 (function(){
   const el  = document.getElementById('cursor-follower');
+  if(!window.matchMedia('(hover:hover) and (pointer:fine)').matches) return; // touch devices: no real mouse to follow
   const EASE = 0.09;   // 0 = never moves, 1 = instant — lower = more lag
   let mx = -300, my = -300;
   let cx = -300, cy = -300;
@@ -1868,6 +1876,17 @@ function closePainting() {
 document.querySelector('[data-p="home"]').classList.add('on');
 document.body.classList.add('is-home');
 document.getElementById('nav').style.display = 'none';
+
+// iOS Safari sometimes needs muted set as a JS property (not just an
+// attribute) and an explicit play() call before it'll honor autoplay
+(function(){
+  const bgVideo = document.querySelector('.hm-bg-video');
+  if(!bgVideo) return;
+  bgVideo.muted = true;
+  const tryPlay = () => bgVideo.play().catch(function(){});
+  tryPlay();
+  document.addEventListener('touchstart', tryPlay, { once:true, passive:true });
+})();
 
 </script>
 
