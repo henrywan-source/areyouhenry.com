@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Henry Wang</title>
 <style>
-@import url('https://fonts.cdnfonts.com/css/akira-expanded');
-
 /* ==========================================================================
    RESET
 ========================================================================== */
@@ -27,17 +25,39 @@
 ========================================================================== */
 html{scroll-behavior:smooth}
 body{
-  font-family:'Akira Expanded',Helvetica,Arial,sans-serif;
+  font-family:Helvetica,Arial,sans-serif;
   background:#fff;
-  color:#000;
+  color:rgba(0,0,0,.55);
   line-height:1.5;
   overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
 }
+body.is-home{color:#fff}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer}
 img{display:block;max-width:100%}
 :focus-visible{outline:1px solid #000;outline-offset:3px}
+
+/* ==========================================================================
+   GLOBAL VERTICAL STRETCH
+   Every run of type is rendered 1.5× taller. Applied per text element so
+   images and layout boxes keep their true proportions. Because a CSS
+   transform does not reserve layout space, stretchType() in JS adds the
+   missing 50% back as margin so lines and paragraphs never collide.
+========================================================================== */
+.n-links button,#mob button,
+.sh-l,.sh-r,
+.rw-item,.pw-caption,.pwd-title,.pwd-meta,
+.pi-n,.pi-t,.pi-y,.pi-m,
+.ps-num,.ps-title,.ps-year,.ps-media,
+.pd-crumb,.pd-back,.bar-home,.pd-h,.pd-f label,.pd-f p,.pd-desc,.pd-rel-h,.pd-rel-empty,
+.ab-col h2,.ab-col p,
+.cv-sh,.cv-yr,.cv-inf strong,.cv-inf span,
+.ct-hl,.ct-v,.ct-p,
+.site-footer,.pwd-back,.lb-x{
+  transform:scaleY(1.5);
+  transform-origin:top center;
+}
 
 /* ==========================================================================
    NAV
@@ -57,9 +77,14 @@ img{display:block;max-width:100%}
 }
 
 .n-logo{
-  background:none;border:none;
-  font-size:12px;font-weight:700;
-  letter-spacing:.09em;text-transform:uppercase;color:#000;
+  background:none;border:none;padding:0;
+  display:flex;align-items:center;
+}
+/* Wordmark image sized to sit where the 12px text logo used to */
+.n-logo img{
+  display:block;
+  height:13px;
+  width:auto;
 }
 
 .n-links{display:flex;gap:30px;list-style:none}
@@ -78,22 +103,48 @@ body.is-home #nav{display:none !important}
 /* Hide footer on home page — the video hero is the only content */
 body.is-home .site-footer{display:none !important}
 
+/* Centered stack: wordmark above the menu */
+.hm-center{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  z-index:10;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:clamp(28px,6vh,64px);
+  width:max-content;
+  max-width:96vw;
+}
+.hm-logo{
+  width:clamp(660px,96vw,1380px);
+  max-width:100%;
+  height:auto;
+  /* slight white edge glow so the black brush strokes lift off the photo */
+  filter:
+    drop-shadow(0 0 1.2px rgba(255,255,255,.60))
+    drop-shadow(0 0 4.8px rgba(255,255,255,.45))
+    drop-shadow(0 0 12px rgba(255,255,255,.28));
+}
+
 /* Inline home nav */
 .hm-nav{
-  display:flex;flex-direction:column;align-items:flex-start;gap:16px;
+  display:flex;flex-direction:column;align-items:center;gap:26px;
   list-style:none;
-  position:fixed;
-  top:calc(var(--nav) + clamp(56px,10vh,128px) + 234px);
-  left:var(--pad);
-  z-index:10;
+  text-align:center;
 }
 .hm-nav button{
   background:none;border:none;
   border-bottom:1px solid transparent;
-  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  font-family:Helvetica,Arial,sans-serif;
+  font-weight:400;
   font-size:20px;letter-spacing:.297em;text-transform:uppercase;color:#fff;
   text-shadow:0 1px 3px rgba(0,0,0,.6),0 2px 10px rgba(0,0,0,.4);
   padding:2px 0;
+  display:inline-block;
+  transform:scaleY(1.5);
+  transform-origin:center center;
   cursor:pointer;
   transition:opacity var(--t),border-color var(--t),text-shadow .35s ease;
 }
@@ -161,7 +212,7 @@ body.is-home .site-footer{display:none !important}
   min-height:100vh;
   min-height:100dvh;
 }
-.hm-bg-video{
+.hm-bg{
   position:absolute;
   inset:0;
   width:100%;
@@ -187,11 +238,13 @@ body.is-home .site-footer{display:none !important}
   bottom:clamp(12px,2.5vh,28px);
   z-index:2;
   text-align:center;
-  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  font-family:Helvetica,Arial,sans-serif;
   font-weight:400;
   font-size:clamp(12px,1.2vw + 8px,20px);
   letter-spacing:.04em;
   color:#fff;
+  transform:scaleY(1.5);
+  transform-origin:center bottom;
   pointer-events:none;
 }
 .hm-cap{
@@ -201,36 +254,6 @@ body.is-home .site-footer{display:none !important}
   font-size:10px;letter-spacing:.08em;text-transform:uppercase;
 }
 .hm-cap span:last-child{opacity:.38}
-
-/* ==========================================================================
-   CURSOR FOLLOWER
-========================================================================== */
-#cursor-follower{
-  position:fixed;
-  top:0;left:0;
-  width:96px;
-  pointer-events:none;
-  z-index:9999;
-  opacity:0;
-  transform:translate(-50%,-50%);
-  transition:opacity .4s ease;
-  filter:drop-shadow(0 8px 18px rgba(0,0,0,.35));
-}
-/* Touch devices have no real mouse — iOS fires a one-off synthetic
-   mousemove after a tap, which would otherwise snap this into view
-   and leave it stuck on screen. Hide it outright wherever there's
-   no fine-pointer hover input. */
-@media (hover:none), (pointer:coarse){
-  #cursor-follower{display:none !important}
-}
-#cursor-follower img{
-  display:block;
-  width:100%;
-  height:auto;
-  object-fit:contain;
-  transform:scaleY(1.25);
-  transform-origin:center center;
-}
 
 /* ==========================================================================
    RECENT WORKS — Britt-style hover list
@@ -290,7 +313,7 @@ body.is-home .site-footer{display:none !important}
   display:flex;
   gap:24px;
   justify-content:center;
-  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  font-family:Helvetica,Arial,sans-serif;
   font-size:11px;
   font-weight:400;
   letter-spacing:.06em;
@@ -349,7 +372,7 @@ body.is-home .site-footer{display:none !important}
   display:flex;
   gap:32px;
   justify-content:center;
-  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  font-family:Helvetica,Arial,sans-serif;
   font-size:13px;
   font-weight:400;
   letter-spacing:.04em;
@@ -487,6 +510,16 @@ body.is-home .site-footer{display:none !important}
 .pd-back:hover{opacity:.4}
 .pd-crumb{font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.38}
 
+/* Shared "Home" button for detail-overlay bars */
+.bar-home{
+  background:none;border:none;
+  font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:#000;
+  cursor:pointer;
+  transition:opacity var(--t);
+}
+.bar-home:hover{opacity:.4}
+.bar-nav{display:flex;gap:22px;align-items:center}
+
 .pd-body{
   padding:56px var(--pad) 100px;
   max-width:min(960px,100%);
@@ -533,7 +566,7 @@ body.is-home .site-footer{display:none !important}
   grid-column:1/-1;
   font-size:14px;line-height:1.82;
   max-width:600px;opacity:.74;
-  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  font-family:Helvetica,Arial,sans-serif;
   font-weight:400;
   letter-spacing:.052em;
 }
@@ -581,7 +614,7 @@ body.is-home .site-footer{display:none !important}
   font-size:10px;letter-spacing:.15em;text-transform:uppercase;font-weight:400;
   padding-bottom:12px;border-bottom:1px solid #000;margin-bottom:24px;
 }
-.ab-col p{font-size:14px;line-height:1.84;opacity:.8;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:400}
+.ab-col p{font-size:14px;line-height:1.84;opacity:.8;font-family:Helvetica,Arial,sans-serif;font-weight:400}
 .ab-col p+p{margin-top:16px}
 .ab-img-col{overflow:hidden;align-self:stretch;transform:translateX(-75px)}
 .ab-img-col img{display:block;height:100%;width:auto}
@@ -653,13 +686,13 @@ body.is-home .site-footer{display:none !important}
    FOOTER
 ========================================================================== */
 .site-footer{
-  padding:20px var(--pad);
+  padding:22px var(--pad) 28px;
   margin-top:100px;
-  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  font-family:Helvetica,Arial,sans-serif;
   font-weight:400;
-  font-size:10px;
+  font-size:16px;
   letter-spacing:.04em;
-  opacity:.55;
+  color:rgba(0,0,0,.55);
   text-align:center;
 }
 
@@ -727,12 +760,14 @@ body.is-home .site-footer{display:none !important}
 <nav id="nav" aria-label="Main navigation" style="display:none">
 
   <!-- EDIT: Artist name in the nav bar -->
-  <button class="n-logo" onclick="go('home')">Henry Wang</button>
+  <button class="n-logo" onclick="go('home')" aria-label="Henry Wang — home">
+    <img src="henry_wang.png" alt="Henry Wang">
+  </button>
 
   <ul class="n-links" role="list">
     <li><button onclick="go('home')"     data-p="home">Home</button></li>
-    <li><button onclick="go('works')"    data-p="works">Recent Works</button></li>
-    <li><button onclick="go('paintings')" data-p="paintings">Selected Paintings</button></li>
+    <li><button onclick="go('paintings')" data-p="paintings">Recent Paintings</button></li>
+    <li><button onclick="go('works')"    data-p="works">3D</button></li>
     <li><button onclick="go('about')"    data-p="about">Artist Statement</button></li>
     <li><button onclick="go('cv')"       data-p="cv">CV</button></li>
     <li><button onclick="go('contact')"  data-p="contact">Contact</button></li>
@@ -746,8 +781,9 @@ body.is-home .site-footer{display:none !important}
 <!-- Mobile menu -->
 <div id="mob" aria-label="Mobile navigation">
   <button onclick="go('home');     closeMenu()">Home</button>
-  <button onclick="go('works');    closeMenu()">Recent Works</button>
-  <button onclick="go('paintings'); closeMenu()">Selected Paintings</button>
+  <button class="js-back" onclick="goBack();       closeMenu()">back</button>
+  <button onclick="go('paintings'); closeMenu()">Recent Paintings</button>
+  <button onclick="go('works');    closeMenu()">3D</button>
   <button onclick="go('about');    closeMenu()">Artist Statement</button>
   <button onclick="go('cv');       closeMenu()">CV</button>
   <button onclick="go('contact');  closeMenu()">Contact</button>
@@ -761,15 +797,18 @@ body.is-home .site-footer{display:none !important}
 ========================================================================== -->
 <section id="v-home" class="v on" aria-label="Home">
 
-  <video class="hm-bg-video" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="images/title-poster.jpg" disablePictureInPicture disableRemotePlayback src="images/title.mp4"></video>
+  <img class="hm-bg" src="images/Being.jpg" alt="">
 
-  <ul class="hm-nav" role="list">
-    <li><button onclick="go('works')"    data-p="works">Recent Works</button></li>
-    <li><button onclick="go('about')"    data-p="about">Artist Statement</button></li>
-    <li><button onclick="go('paintings')" data-p="paintings">Selected Paintings</button></li>
-    <li><button onclick="go('cv')"       data-p="cv">CV</button></li>
-    <li><button onclick="go('contact')"  data-p="contact">Contact</button></li>
-  </ul>
+  <div class="hm-center">
+    <img class="hm-logo" src="henry_wang.png" alt="Henry Wang">
+    <ul class="hm-nav" role="list">
+      <li><button onclick="go('paintings')" data-p="paintings">Recent Paintings</button></li>
+      <li><button onclick="go('works')"    data-p="works">3D</button></li>
+      <li><button onclick="go('about')"    data-p="about">Artist Statement</button></li>
+      <li><button onclick="go('cv')"       data-p="cv">CV</button></li>
+      <li><button onclick="go('contact')"  data-p="contact">Contact</button></li>
+    </ul>
+  </div>
 
   <img class="hm-headshot hm-headshot--left" src="images/headshot.jpg" alt="Henry Wang">
   <img class="hm-headshot hm-headshot--right" src="images/headshot.jpg" alt="Henry Wang">
@@ -784,30 +823,29 @@ body.is-home .site-footer{display:none !important}
      Each needs: image src + alt, onclick index matching PROJECTS[], title, meta.
      EDIT: Update count in .sh-r when adding/removing works.
 ========================================================================== -->
-<section id="v-works" class="v" aria-label="Recent Works">
+<section id="v-works" class="v" aria-label="3D">
 
   <div class="sh">
-    <span class="sh-l">Recent Works</span>
-    <span class="sh-r">7 Works — 2026</span><!-- EDIT: Update count -->
+    <span class="sh-l">3D</span>
+    <span class="sh-r">6 Works — 2026</span><!-- EDIT: Update count -->
   </div>
 
   <div class="rw-layout">
 
     <!-- Left: large image that swaps on hover -->
     <div class="rw-img-pane">
-      <img id="rw-img-a" class="rw-img rw-img--active" src="images/Being.jpg" alt="">
+      <img id="rw-img-a" class="rw-img rw-img--active" src="images/Country Boy.jpg" alt="">
       <img id="rw-img-b" class="rw-img" src="" alt="">
     </div>
 
     <!-- Right: project list -->
     <ul class="rw-list">
-      <li class="rw-item" data-img="images/Being.jpg"              data-i="0">01 — Being</li>
-      <li class="rw-item" data-img="images/Country Boy.jpg"        data-i="1">02 — Country Boy</li>
-      <li class="rw-item" data-img="images/Cubic Liminal.jpg"      data-i="2">03 — Cubic Liminal</li>
-      <li class="rw-item" data-img="images/Dancer's Hemorrhage.jpg" data-i="3">04 — Dancer's Hemorrhage</li>
-      <li class="rw-item" data-img="images/Dinner For One.jpg"     data-i="4">05 — Dinner For One</li>
-      <li class="rw-item" data-img="images/Stay.jpg"               data-i="5">06 — Stay</li>
-      <li class="rw-item" data-img="images/The Way Forward.jpg"    data-i="6">07 — The Way Forward</li>
+      <li class="rw-item" data-img="images/Country Boy.jpg"        data-i="0">01 — Country Boy</li>
+      <li class="rw-item" data-img="images/Cubic Liminal.jpg"      data-i="1">02 — Cubic Liminal</li>
+      <li class="rw-item" data-img="images/Dancer's Hemorrhage.jpg" data-i="2">03 — Dancer's Hemorrhage</li>
+      <li class="rw-item" data-img="images/Dinner For One.jpg"     data-i="3">04 — Dinner For One</li>
+      <li class="rw-item" data-img="images/Stay.jpg"               data-i="4">05 — Stay</li>
+      <li class="rw-item" data-img="images/The Way Forward.jpg"    data-i="5">06 — The Way Forward</li>
     </ul>
 
   </div>
@@ -818,10 +856,10 @@ body.is-home .site-footer{display:none !important}
      EDIT: Add/remove .pi rows. onclick index must match PROJECTS[] in JS.
      EDIT: Update .pi-m text (medium) for each row.
 ========================================================================== -->
-<section id="v-paintings" class="v" aria-label="Selected Paintings">
+<section id="v-paintings" class="v" aria-label="Recent Paintings">
 
   <div class="sh">
-    <span class="sh-l">Selected Paintings</span>
+    <span class="sh-l">Recent Paintings</span>
     <span class="sh-r">25 Works</span>
   </div>
 
@@ -933,7 +971,10 @@ body.is-home .site-footer{display:none !important}
 <!-- Painting detail overlay -->
 <div id="pw-detail" role="dialog" aria-modal="true" aria-label="Painting detail">
   <div class="pwd-bar">
-    <button class="pwd-back" onclick="closePainting()">Back</button>
+    <div class="bar-nav">
+      <button class="pwd-back" onclick="closePainting()">back</button>
+      <button class="bar-home" onclick="closePainting();go('home')">Home</button>
+    </div>
   </div>
   <div class="pwd-body">
     <img id="pwd-img" class="pwd-img" src="" alt="">
@@ -959,7 +1000,7 @@ body.is-home .site-footer{display:none !important}
       <p>From the earliest time the idea of personifying the environment was memorialized, it has always lingered in my consciousness. Whether it was a smoky street, soft beanbags, or the smell of cocoa beans in the coffee machine, all left the remnants of being human. Growing up in Beijing, China, everything was loud, rambunctious, and lively. It reminded me of how intense human interactions were in a world so different from the West. My grandpa's morning routine of waking us up at 6:30 am sharp for his daily exercise is undoubtedly warm. These small rocks of memory on the grand path have become my stepping stone, delving into early memories of feeling loved, confused, sad, and despairing. Constantly moving in my life shaped these experiences into nostalgia, often looking back on them to reminisce about the "good old times", where art meant nothing more than a ballpoint pen on a piece of lined paper.</p>
       <p>Through painting, I began wandering. Both mentally and physically, creating characters of my own imagination to reiterate and represent the void created by many incidents of my daily life. Colours; there, I was always bewildered by the sheer prominence that a colour could hold. Red for fury, blue for sadness, white for purity, and so on. Throughout the experiments, I have learnt to control and manipulate colours to work in my favour and to take chances to prosper in every aspect of my work. Certain colours for absurdism, ones that have no purpose being layered together, when I fixated on a glimpse of a porcelain vase in the Forbidden City back in the old country. It opened a window to my rooted imagination in culture, adaptivity, and relationships.</p>
       <p>Idioms, phenomena, and vague imagery. Many of my paintings and installations primarily depend on these three ideals. Form, composition, and configuration are the basis for how I portray my work, in a very specific way that captures both the essence of the material and the unseen forces beyond it. Sometimes rational, sometimes not. Form becomes more than just representation; it is a voice for bringing my thoughts to life. Many of my installations also focus on the movement of the specific three-dimensional imagery I am trying to present; swift like dancers or body curvatures, they began to come alive in the realm of my own imagination. Form and expression are also starkly evident in my films and photography. It has brought me the utmost joy when it comes to 1:1 representation of an event or person; from abstract video essays to memoirs, and even myself, I have learned to control the absurdity: writing love letters to my past self about all my experiences as a newcomer to this green world.</p>
-      <p style="margin-top:auto;padding-top:48px;font-size:14px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:400;opacity:.8;">Henry Wang, uninterrupted.</p>
+      <p style="margin-top:auto;padding-top:48px;font-size:14px;font-family:Helvetica,Arial,sans-serif;font-weight:400;opacity:.8;">Henry Wang, uninterrupted.</p>
     </div>
 
     <div class="ab-img-col">
@@ -1283,11 +1324,6 @@ body.is-home .site-footer{display:none !important}
 
 <footer class="site-footer">© 2026 by Henry Ming Qian Wang All rights reserved.</footer>
 
-<!-- Cursor follower -->
-<div id="cursor-follower" aria-hidden="true">
-  <img src="images/headshot.jpg" alt="">
-</div>
-
 <!-- ==========================================================================
      PROJECT DETAIL OVERLAY
      Populated dynamically by openProj() from PROJECTS[] in JS.
@@ -1296,7 +1332,10 @@ body.is-home .site-footer{display:none !important}
 <div id="pd" role="dialog" aria-modal="true" aria-label="Project detail">
 
   <div class="pd-bar">
-    <button class="pd-back" onclick="closeProj()">Back</button>
+    <div class="bar-nav">
+      <button class="pd-back" onclick="closeProj()">back</button>
+      <button class="bar-home" onclick="closeProj(true);go('home')">Home</button>
+    </div>
     <span class="pd-crumb" id="pd-crumb"></span>
   </div>
 
@@ -1307,7 +1346,7 @@ body.is-home .site-footer{display:none !important}
       <img id="pd-img" src="" alt="">
       <video id="pd-vid" src="" autoplay loop muted playsinline style="display:none;width:100%;height:auto;cursor:pointer;" title="Click to toggle sound"></video>
       <iframe id="pd-yt" src="" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen style="display:none;width:100%;aspect-ratio:16/9;"></iframe>
-      <p id="pd-vid-hint" style="display:none;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:400;font-size:9px;letter-spacing:.08em;text-transform:uppercase;opacity:.4;margin-top:8px;">Click for sound</p>
+      <p id="pd-vid-hint" style="display:none;font-family:Helvetica,Arial,sans-serif;font-weight:400;font-size:9px;letter-spacing:.08em;text-transform:uppercase;opacity:.4;margin-top:8px;">Click for sound</p>
     </div>
 
     <!-- Project metadata -->
@@ -1376,21 +1415,9 @@ body.is-home .site-footer{display:none !important}
 // EDIT: Update medium, dims, desc for each project.
 // EDIT: Add related images by adding objects to each "related" array:
 //       { src: 'images/filename.jpg', alt: 'Alt text' }
-// Array index (0–6) MUST match onclick="openProj(N)" in the HTML above.
+// Array index (0–5) MUST match data-i="N" on each .rw-item in the HTML above.
 // ==========================================================================
 const PROJECTS = [
-  {
-    title:  'Being',
-    image:  'images/Being.jpg',
-    youtube: 'XEqgdGbxZxw',
-    year:   '2026',
-    medium: 'Mixed Media',
-    dims:   '1920 × 1080 px',
-    desc:   'In this piece, Being, I explored the idea of both being myself and becoming myself through the burdens of my once-absent father. A direct memo to the years of contemplation and reflection about the man whom I only got to know recently. It is also about my overcomings, which drew heavily on my other piece "Therefore I Became" in both usage and meaning. These two pieces become intertwined in a way. Exploring deeper into the idea of Filial Piety, and how that does not apply in circumstances such as this one. As I have gotten older, I have felt more inclined to learn about and understand this strange man who claims to love me unconditionally, and not antagonize him. I am always in the process of becoming, and ultimately being. A boy who wanders, a son to a father.',
-    related: [
-      // ADD RELATED IMAGES FOR THIS PROJECT HERE
-    ]
-  },
   {
     title:  'Country Boy',
     image:  'images/Country Boy.jpg',
@@ -1402,13 +1429,13 @@ const PROJECTS = [
       { src: 'images/Country Boy/COUNTRYBOY-254.jpg', alt: 'Country Boy' },
       { src: 'images/Country Boy/COUNTRYBOY-263.jpg', alt: 'Country Boy' },
       { src: 'images/Country Boy/COUNTRYBOY-274.jpg', alt: 'Country Boy' },
-      { src: 'images/Country Boy/COUNTRYBOY-281.jpg', alt: 'Country Boy' },
+      { src: 'images/Country Boy/Wang_Henry_CountryBoy2.jpg', alt: 'Country Boy' },
       { src: 'images/Country Boy/COUNTRYBOY-288.jpg', alt: 'Country Boy' },
       { src: 'images/Country Boy/COUNTRYBOY-293.jpg', alt: 'Country Boy' },
       { src: 'images/Country Boy/COUNTRYBOY-298.jpg', alt: 'Country Boy' },
       { src: 'images/Country Boy/COUNTRYBOY-308.jpg', alt: 'Country Boy' },
       { src: 'images/Country Boy/COUNTRYBOY-309.jpg', alt: 'Country Boy' },
-      { src: 'images/Country Boy/COUNTRYBOY-325.jpg', alt: 'Country Boy' },
+      { src: 'images/Country Boy/Wang_Henry_CountryBoy3.jpg', alt: 'Country Boy' },
       { src: 'images/Country Boy/COUNTRYBOY-332.jpg', alt: 'Country Boy' },
       { src: 'images/Country Boy/COUNTRYBOY.jpg',     alt: 'Country Boy' }
     ]
@@ -1425,7 +1452,7 @@ const PROJECTS = [
       { src: 'images/Cubic Liminal/2026.02.06_02_009.jpg', alt: 'Cubic Liminal' },
       { src: 'images/Cubic Liminal/2026.02.06_02_026.jpg', alt: 'Cubic Liminal' },
       { src: 'images/Cubic Liminal/2026.02.06_02_043.jpg', alt: 'Cubic Liminal' },
-      { src: 'images/Cubic Liminal/2026.02.06_02_087.jpg', alt: 'Cubic Liminal' },
+      { src: 'images/Cubic Liminal/Wang_Henry_CubmicLiminal3.jpg', alt: 'Cubic Liminal' },
       { src: 'images/Cubic Liminal/2026.02.06_02_098.jpg', alt: 'Cubic Liminal' },
       { src: 'images/Cubic Liminal/2026.02.06_02_104.jpg', alt: 'Cubic Liminal' },
       { src: 'images/Cubic Liminal/2026.02.06_02_119.jpg', alt: 'Cubic Liminal' },
@@ -1568,13 +1595,18 @@ const PROJECTS = [
 // NAVIGATION
 // ==========================================================================
 let cur = 'home';
+const viewHistory = [];   // every view visited before `cur`, oldest first
 
-function go(id) {
+function go(id, isBack) {
   closeProj(true); // close detail if open, instantly
 
-  const prev = document.getElementById('v-' + cur);
   const next = document.getElementById('v-' + id);
-  if (!next) return;
+  if (!next || id === cur) return;   // unknown view or already here — do nothing
+
+  const prev = document.getElementById('v-' + cur);
+
+  // Forward navigation remembers where we came from; "back" consumes it.
+  if (!isBack) viewHistory.push(cur);
 
   prev.classList.remove('on');
   next.classList.add('on', 'fi');
@@ -1589,7 +1621,22 @@ function go(id) {
     b.classList.toggle('on', b.dataset.p === id)
   );
 
+  updateBackButtons();
   window.scrollTo(0, 0);
+
+  if (typeof scheduleStretch === 'function') scheduleStretch();
+}
+
+// Step back through the exact pages the visitor came from — never jump to home.
+function goBack() {
+  if (!viewHistory.length) return;      // nothing to go back to
+  go(viewHistory.pop(), true);
+}
+
+// Hide every "back" control while there is no history to step into.
+function updateBackButtons() {
+  const has = viewHistory.length > 0;
+  document.querySelectorAll('.js-back').forEach(el => { el.style.display = has ? '' : 'none'; });
 }
 
 // ==========================================================================
@@ -1665,15 +1712,13 @@ function openProj(i) {
     wrap.style.cursor = 'pointer';
   }
 
-  // Related images — hide entirely for Being, show for all others
+  // Related images
   const relSection = document.getElementById('pd-rel');
   const grid       = document.getElementById('pd-rel-grid');
   const emptyNote  = document.getElementById('pd-rel-empty');
   grid.innerHTML   = '';
 
-  if (p.title === 'Being') {
-    relSection.style.display = 'none';
-  } else {
+  {
     relSection.style.display = '';
     const hasRelated = p.related && p.related.length > 0;
     if (hasRelated) {
@@ -1853,39 +1898,49 @@ function closePainting() {
 
 
 // ==========================================================================
-// CURSOR FOLLOWER — headshot image lags behind mouse (lerp)
+// VERTICAL STRETCH — reserve layout space for scaleY(1.5) text
+// A CSS transform is painted but not measured, so 1.5× tall text bleeds
+// into whatever follows it. For every stretched element we add the missing
+// half of its height back as margin, keeping every line legible.
 // ==========================================================================
-(function(){
-  const el  = document.getElementById('cursor-follower');
-  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  if(isTouch || !window.matchMedia('(hover:hover) and (pointer:fine)').matches) return; // touch devices: no real mouse to follow
-  const EASE = 0.09;   // 0 = never moves, 1 = instant — lower = more lag
-  let mx = -300, my = -300;
-  let cx = -300, cy = -300;
-  let visible = false;
+var STRETCH_SEL = [
+  '.n-links button','#mob button',
+  '.sh-l','.sh-r',
+  '.rw-item','.pw-caption','.pwd-title','.pwd-meta',
+  '.pi-n','.pi-t','.pi-y','.pi-m',
+  '.ps-num','.ps-title','.ps-year','.ps-media',
+  '.pd-crumb','.pd-back','.bar-home','.pd-h','.pd-f label','.pd-f p','.pd-desc','.pd-rel-h','.pd-rel-empty',
+  '.ab-col h2','.ab-col p',
+  '.cv-sh','.cv-yr','.cv-inf strong','.cv-inf span',
+  '.ct-hl','.ct-v','.ct-p',
+  '.site-footer','.pwd-back','.lb-x'
+].join(',');
 
-  document.addEventListener('mousemove', function(e){
-    mx = e.clientX;
-    my = e.clientY;
-    if(!visible){
-      cx = mx; cy = my; // snap on first move so it doesn't slide in from corner
-      visible = true;
-      el.style.opacity = '1';
+function stretchType(){
+  var els = document.querySelectorAll(STRETCH_SEL);
+  // 1: clear any reservation we added so measurements are natural
+  els.forEach(function(el){ el.style.marginBottom = el.dataset.syBase || ''; });
+  // 2: measure the painted (already 1.5×) height, add the surplus as margin
+  els.forEach(function(el){
+    var r = el.getBoundingClientRect();
+    if(!r.height) return;                 // hidden view/overlay — skip until visible
+    if(el.dataset.syBase === undefined){
+      el.dataset.syBase = getComputedStyle(el).marginBottom;
     }
+    var base    = parseFloat(el.dataset.syBase) || 0;
+    var surplus = r.height / 3;           // painted height − true height = trueHeight·0.5
+    el.style.marginBottom = (base + surplus + 2) + 'px';
   });
-  document.addEventListener('mouseleave', function(){
-    visible = false;
-    el.style.opacity = '0';
-  });
+}
 
-  (function tick(){
-    cx += (mx - cx) * EASE;
-    cy += (my - cy) * EASE;
-    el.style.left = cx.toFixed(1) + 'px';
-    el.style.top  = cy.toFixed(1) + 'px';
-    requestAnimationFrame(tick);
-  })();
-})();
+var _syRAF;
+function scheduleStretch(){ cancelAnimationFrame(_syRAF); _syRAF = requestAnimationFrame(stretchType); }
+window.addEventListener('load', stretchType);
+window.addEventListener('resize', scheduleStretch);
+// re-run once a nav click / overlay open has had time to reveal new text
+document.addEventListener('click', function(){ setTimeout(stretchType, 80); }, true);
+stretchType();
+
 
 // ==========================================================================
 // INIT
@@ -1893,50 +1948,7 @@ function closePainting() {
 document.querySelector('[data-p="home"]').classList.add('on');
 document.body.classList.add('is-home');
 document.getElementById('nav').style.display = 'none';
-
-// iOS Safari sometimes needs muted/playsInline set as JS properties
-// (not just attributes) before it'll honor autoplay, and can silently
-// swallow the very first play() attempt if it races page setup — so
-// retry on every lifecycle signal that could plausibly unblock it,
-// not just once on load.
-(function(){
-  const bgVideo = document.querySelector('.hm-bg-video');
-  if(!bgVideo) return;
-  bgVideo.muted = true;
-  bgVideo.playsInline = true;
-  bgVideo.defaultMuted = true;
-
-  let attempts = 0;
-  const tryPlay = () => {
-    if(!bgVideo.paused) return;
-    attempts++;
-    bgVideo.play().catch(function(){});
-  };
-
-  tryPlay();
-  document.addEventListener('DOMContentLoaded', tryPlay);
-  window.addEventListener('load', tryPlay);
-  window.addEventListener('pageshow', tryPlay);           // back-forward cache restores
-  document.addEventListener('visibilitychange', function(){
-    if(!document.hidden) tryPlay();
-  });
-  bgVideo.addEventListener('canplay', tryPlay);
-  bgVideo.addEventListener('loadeddata', tryPlay);
-  bgVideo.addEventListener('pause', function(){
-    if(attempts < 20) tryPlay();                          // guard against an unexpected external pause
-  });
-  ['touchstart','touchend','pointerdown','click','scroll'].forEach(function(evt){
-    document.addEventListener(evt, tryPlay, { passive:true });
-  });
-
-  // last-resort short poll in case every event above fires before the
-  // browser is actually willing to play (e.g. slow network on cellular)
-  const poll = setInterval(function(){
-    attempts++;
-    tryPlay();
-    if(!bgVideo.paused || attempts > 20) clearInterval(poll);
-  }, 500);
-})();
+updateBackButtons();   // no history yet — hide the "back" controls
 
 </script>
 
